@@ -1,4 +1,4 @@
-import { UploadCard } from "@/components/UploadCard";
+import { WorkflowSection } from "@/components/WorkflowSection";
 
 const STEPS = [
   {
@@ -51,7 +51,7 @@ export default function HomePage() {
       </header>
 
       <div className="mb-14">
-        <UploadCard />
+        <WorkflowSection />
       </div>
 
       <section aria-labelledby="workflow-heading">
@@ -87,8 +87,7 @@ export default function HomePage() {
       </section>
 
       <footer className="mt-16 border-t border-neutral-900 pt-6 text-xs text-neutral-500">
-        Steps 2&ndash;5 (analysis, structure cards, storyboard, render) are not
-        wired up yet.
+        Steps 3&ndash;5 (structure cards, storyboard, render) are not wired up yet.
       </footer>
     </main>
   );

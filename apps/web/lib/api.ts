@@ -5,7 +5,7 @@
  * Do not call `fetch` directly from components.
  */
 
-import type { VideoUploadResponse } from "./types";
+import type { VideoAnalysis, VideoUploadResponse } from "./types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "") ??
@@ -48,5 +48,19 @@ export const api = {
       body: form,
     });
     return parseOrThrow<VideoUploadResponse>(res);
+  },
+
+  async analyzeVideoBasic(jobId: string): Promise<VideoAnalysis> {
+    const res = await fetch(
+      `${API_BASE_URL}/videos/${encodeURIComponent(jobId)}/analyze-basic`,
+      { method: "POST" }
+    );
+    return parseOrThrow<VideoAnalysis>(res);
+  },
+
+  /** Build a URL for a file under DATA_DIR served by the API. */
+  staticUrl(relativePath: string): string {
+    const cleaned = relativePath.replace(/^\/+/, "");
+    return `${API_BASE_URL}/static/${cleaned}`;
   },
 };

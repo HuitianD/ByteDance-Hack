@@ -1,9 +1,8 @@
 /**
- * API DTOs returned by the FastAPI backend.
+ * API DTOs returned by the FastAPI backend (snake_case on purpose).
  *
- * These mirror Pydantic models in `apps/api/app/schemas/`. Domain-level
- * pipeline schemas (VideoAnalysis, StructureCard, ...) live in
- * `packages/schemas` and are consumed once those endpoints exist.
+ * Domain-level pipeline schemas (canonical camelCase) live in
+ * `packages/schemas` and are consumed when those endpoints exist.
  */
 
 export interface VideoUploadResponse {
@@ -13,6 +12,40 @@ export interface VideoUploadResponse {
   saved_path: string;
   content_type: string;
   size_bytes: number;
+  /** ISO 8601 UTC timestamp. */
+  created_at: string;
+}
+
+export interface FrameInfo {
+  index: number;
+  timestamp_seconds: number;
+  /** Path relative to DATA_DIR. Served at `<API>/static/<path>`. */
+  path: string;
+}
+
+export interface SceneSegment {
+  id: string;
+  start_seconds: number;
+  end_seconds: number;
+  role?: string | null;
+  thumbnail_path?: string | null;
+}
+
+export type SceneDetectionMethod = "pyscenedetect" | "time_based";
+
+export interface VideoAnalysis {
+  id: string;
+  job_id: string;
+  source_video_path: string;
+  duration_seconds: number;
+  fps: number;
+  width: number;
+  height: number;
+  total_frames: number;
+  file_size_bytes: number;
+  frames: FrameInfo[];
+  scenes: SceneSegment[];
+  scene_detection_method: SceneDetectionMethod;
   /** ISO 8601 UTC timestamp. */
   created_at: string;
 }

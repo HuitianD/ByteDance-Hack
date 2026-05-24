@@ -1,4 +1,4 @@
-"""Video upload + (later) analysis routes."""
+"""Video upload + basic analysis routes."""
 
 from __future__ import annotations
 
@@ -9,7 +9,8 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from app.core.config import Settings, get_settings
-from app.schemas.video import VideoUploadResponse
+from app.schemas.video import VideoAnalysis, VideoUploadResponse
+from app.services.video_analysis import AnalysisError, analyze_video_file
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -34,7 +35,6 @@ def _safe_extension(filename: str | None, content_type: str) -> str:
         suffix = Path(filename).suffix.lower()
         if suffix in _KNOWN_VIDEO_EXTS:
             return suffix
-    # Last-resort guess from content type.
     if "/" in content_type:
         subtype = content_type.split("/", 1)[1].lower()
         guess = f".{subtype}"
@@ -55,8 +55,43 @@ def _cleanup(path: Path, parent_dir: Path) -> None:
     try:
         parent_dir.rmdir()
     except OSError:
-        # Directory not empty or already gone -- fine.
         pass
+
+
+def _validate_job_id(job_id: str) -> str:
+    """Reject non-UUID job_ids to prevent path traversal in lookups."""
+    try:
+        return str(uuid.UUID(job_id))
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid job_id '{job_id}' (must be a UUID).",
+        ) from exc
+
+
+def _find_uploaded_video(data_dir: Path, job_id: str) -> Path:
+    """Return the path to the original video for a given job_id.
+
+    Raises HTTPException(404) when the job or video is missing.
+    """
+    upload_dir = data_dir / "uploads" / job_id
+    if not upload_dir.exists() or not upload_dir.is_dir():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job '{job_id}' not found.",
+        )
+    candidates = sorted(upload_dir.glob("original.*"))
+    if not candidates:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Original video not found for job '{job_id}'.",
+        )
+    return candidates[0]
+
+
+# ---------------------------------------------------------------------------
+# POST /videos/upload
+# ---------------------------------------------------------------------------
 
 
 @router.post(
@@ -103,7 +138,7 @@ async def upload_video(
     except HTTPException:
         _cleanup(target_path, target_dir)
         raise
-    except Exception as exc:  # noqa: BLE001 -- unexpected I/O errors -> 500
+    except Exception as exc:  # noqa: BLE001
         _cleanup(target_path, target_dir)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -122,3 +157,53 @@ async def upload_video(
         size_bytes=total_bytes,
         created_at=datetime.now(timezone.utc),
     )
+
+
+# ---------------------------------------------------------------------------
+# POST /videos/{job_id}/analyze-basic
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{job_id}/analyze-basic",
+    response_model=VideoAnalysis,
+    summary="Run basic, deterministic, non-LLM video analysis",
+)
+def analyze_basic(
+    job_id: str,
+    settings: Settings = Depends(get_settings),
+) -> VideoAnalysis:
+    """Extract metadata, representative frames, and scene segments.
+
+    Side effects (idempotent on re-run):
+        - Wipes and rewrites `data/frames/<job_id>/`.
+        - Writes `data/knowledge_base/<job_id>/video_analysis.json`.
+
+    Defined as a sync function so FastAPI runs it in a threadpool: OpenCV
+    and PySceneDetect are blocking.
+    """
+    job_id = _validate_job_id(job_id)
+
+    data_dir = settings.data_dir_path()
+    video_path = _find_uploaded_video(data_dir, job_id)
+
+    try:
+        analysis = analyze_video_file(
+            job_id=job_id,
+            video_path=video_path,
+            data_dir=data_dir,
+        )
+    except AnalysisError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    kb_dir = data_dir / "knowledge_base" / job_id
+    kb_dir.mkdir(parents=True, exist_ok=True)
+    (kb_dir / "video_analysis.json").write_text(
+        analysis.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+
+    return analysis

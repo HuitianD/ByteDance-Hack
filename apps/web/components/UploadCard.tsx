@@ -22,7 +22,12 @@ function formatTime(iso: string): string {
   }
 }
 
-export function UploadCard() {
+type Props = {
+  onUploaded?: (response: VideoUploadResponse) => void;
+  onReset?: () => void;
+};
+
+export function UploadCard({ onUploaded, onReset }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -34,6 +39,7 @@ export function UploadCard() {
     setError(null);
     setResult(null);
     if (inputRef.current) inputRef.current.value = "";
+    onReset?.();
   }
 
   function onPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -41,6 +47,7 @@ export function UploadCard() {
     setFile(next);
     setError(null);
     setResult(null);
+    if (next) onReset?.();
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -62,6 +69,7 @@ export function UploadCard() {
     try {
       const res = await api.uploadVideo(file);
       setResult(res);
+      onUploaded?.(res);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`Upload failed (${err.status}): ${err.message}`);
