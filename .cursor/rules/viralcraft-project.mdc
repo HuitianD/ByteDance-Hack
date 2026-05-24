@@ -1,0 +1,210 @@
+---
+description: Project rules for ViralCraft, an AI-powered short video structure transfer engine
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# ViralCraft Project Rules
+
+## Project Goal
+
+This project is an AI-powered short video structure transfer engine.
+
+The system should support the following workflow:
+
+1. Upload a sample video.
+2. Analyze the sample video and extract reusable creative structure.
+3. Save the extracted structure into a knowledge base.
+4. Let the user input a new topic, product, or creative request.
+5. Retrieve relevant structure cards from the knowledge base.
+6. Generate a new storyboard JSON.
+7. Render a final video based on the storyboard JSON.
+
+The project is not a generic video summarizer and not a pure text-to-video generator. The core value is learning reusable video creation structure from examples and transferring that structure to new content.
+
+## Core Product Principle
+
+All generated videos must be based on a structured storyboard JSON.
+
+Do not generate video logic directly from free-form text without first producing a storyboard.
+
+The required generation chain is:
+
+user request + retrieved structure cards
+→ storyboard JSON
+→ Remotion composition
+→ rendered mp4
+
+## Tech Stack
+
+Frontend:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- shadcn/ui when useful
+
+Backend:
+- FastAPI
+- Python
+- Pydantic schemas
+- FFmpeg
+- OpenCV or PySceneDetect for frame extraction and scene detection
+
+Video rendering:
+- Remotion
+- FFmpeg
+
+Data storage:
+- Use local JSON files, SQLite, Chroma, or PostgreSQL depending on the current implementation stage.
+- Do not introduce a heavy database unless explicitly requested.
+
+LLM:
+- Use an adapter pattern for LLM calls.
+- Do not hardcode a specific model provider inside product logic.
+- API keys must come from environment variables.
+
+## Repository Structure
+
+Prefer this structure unless the user explicitly changes it:
+
+apps/
+  web/        # Next.js frontend
+  api/        # FastAPI backend
+  renderer/   # Remotion renderer
+
+packages/
+  schemas/    # shared schemas
+  prompts/    # prompt templates
+
+data/
+  uploads/
+  frames/
+  renders/
+  knowledge_base/
+
+docs/
+  architecture.md
+  structure_schema.md
+  demo_script.md
+
+scripts/
+  utility scripts
+
+## Schema Rules
+
+Do not casually change core schema fields after they are defined.
+
+Core schemas should include:
+
+- VideoAnalysis
+- SceneSegment
+- StructureCard
+- EditingAtom
+- Storyboard
+- StoryboardScene
+- RenderJob
+
+When adding or changing schema fields:
+1. Explain why the change is needed.
+2. Update both TypeScript and Python/Pydantic versions if both exist.
+3. Update sample JSON files.
+4. Update affected API routes and UI components.
+
+## API Rules
+
+All API routes must have typed request and response objects.
+
+Frontend API clients should not directly use untyped fetch calls scattered across components.
+
+Prefer centralized API client functions.
+
+Never expose API keys to the frontend.
+
+Never hardcode absolute local paths.
+
+Use environment variables for configurable paths, model endpoints, and API keys.
+
+## Video Processing Rules
+
+Use FFmpeg for video cutting, audio extraction, stitching, and final export.
+
+Use OpenCV or PySceneDetect for frame extraction and scene boundary detection.
+
+Intermediate artifacts should be saved under data/ using clear job IDs.
+
+Do not overwrite user uploads or render outputs without explicit intent.
+
+## Remotion Rules
+
+Remotion compositions should take storyboard JSON as input.
+
+Each scene should be rendered from structured fields such as:
+- duration
+- layout
+- text
+- asset
+- transition
+- animation
+- captionStyle
+- sourceStructureCardId
+
+Do not create one-off hardcoded videos unless it is demo seed data.
+
+Reusable visual components should live inside the renderer app.
+
+## UI Rules
+
+All UI should support the main demo flow:
+
+1. Upload sample video
+2. View analysis timeline
+3. Save structure card
+4. Generate new storyboard
+5. Preview and render final video
+
+Keep components reusable and small.
+
+Prefer clear cards, timelines, and step-by-step workflow UI.
+
+The UI should make the AI process observable. Show intermediate outputs such as extracted scenes, structure cards, retrieved examples, and storyboard scenes.
+
+## Coding Style
+
+Use TypeScript for frontend and renderer code.
+
+Use Python type hints for backend code.
+
+Keep functions small and purpose-specific.
+
+Prefer explicit names over clever abstractions.
+
+Avoid duplicated logic.
+
+Add clear comments only when the logic is non-obvious.
+
+## Security Rules
+
+Never commit secrets.
+
+Never put API keys in source code.
+
+Use .env files locally and provide .env.example for documentation.
+
+Validate uploaded files by type and size.
+
+Do not execute arbitrary user-provided code.
+
+## Development Behavior
+
+Before implementing a large feature, first inspect the existing directory structure and relevant files.
+
+When making a change, keep it scoped.
+
+Do not rewrite unrelated files.
+
+After implementing, explain:
+1. What files changed.
+2. What the feature does.
+3. How to run or test it.
+4. Any remaining TODOs.

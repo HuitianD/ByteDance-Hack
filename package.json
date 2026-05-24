@@ -1,0 +1,21 @@
+{
+  "name": "viralcraft",
+  "private": true,
+  "version": "0.0.1",
+  "description": "AI-powered short video structure transfer engine",
+  "workspaces": [
+    "apps/web",
+    "apps/renderer",
+    "packages/schemas",
+    "packages/prompts"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:renderer": "npm run dev --workspace apps/renderer",
+    "build:web": "npm run build --workspace apps/web",
+    "render": "npm run render --workspace apps/renderer"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
