@@ -14,10 +14,15 @@ Validation policy:
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 from typing import List
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+#: Directory of the api app (`apps/api/`). Used to resolve relative paths
+#: like the default DATA_DIR (`../../data`) regardless of cwd.
+API_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
@@ -47,6 +52,18 @@ class Settings(BaseSettings):
 
     def cors_origins_list(self) -> List[str]:
         return [o.strip() for o in self.cors_allow_origins.split(",") if o.strip()]
+
+    def data_dir_path(self) -> Path:
+        """Resolve DATA_DIR to an absolute Path.
+
+        Absolute values are honored as-is; relative values are anchored to
+        `apps/api/` so the result is the same no matter what cwd uvicorn
+        was launched from.
+        """
+        p = Path(self.data_dir)
+        if p.is_absolute():
+            return p
+        return (API_DIR / p).resolve()
 
     def missing_for_provider(self, provider: str | None = None) -> List[str]:
         """Return the env var names required for the given provider that

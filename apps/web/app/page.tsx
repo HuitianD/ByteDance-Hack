@@ -1,3 +1,5 @@
+import { UploadCard } from "@/components/UploadCard";
+
 const STEPS = [
   {
     n: 1,
@@ -34,7 +36,7 @@ const STEPS = [
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
-      <header className="mb-14">
+      <header className="mb-12">
         <p className="mb-3 text-sm font-medium uppercase tracking-widest text-fuchsia-400">
           ViralCraft
         </p>
@@ -47,6 +49,10 @@ export default function HomePage() {
           from a structured storyboard JSON before it&rsquo;s rendered.
         </p>
       </header>
+
+      <div className="mb-14">
+        <UploadCard />
+      </div>
 
       <section aria-labelledby="workflow-heading">
         <h2
@@ -81,8 +87,8 @@ export default function HomePage() {
       </section>
 
       <footer className="mt-16 border-t border-neutral-900 pt-6 text-xs text-neutral-500">
-        Scaffold only. Pipeline endpoints (analysis, retrieval, generation,
-        rendering) are not yet wired up.
+        Steps 2&ndash;5 (analysis, structure cards, storyboard, render) are not
+        wired up yet.
       </footer>
     </main>
   );
