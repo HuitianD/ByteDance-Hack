@@ -1,16 +1,30 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Caption } from "../components/Caption";
+import { SourceMedia } from "../media/SourceMedia";
+import { useMediaAssets } from "../media/MediaContext";
 import { applyAnimation } from "../util/animation";
 import { gradientFromSeed } from "../util/layout";
 import type { StoryboardScene } from "../types";
 
-export const CtaCard: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+export const CtaCard: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const { accent } = gradientFromSeed(`cta:${scene.scene_id}`);
+  const assets = useMediaAssets();
 
   const arrowAnim = applyAnimation("scale-pulse", frame, fps, durationInFrames);
+
+  const hasRealMedia = Boolean(
+    assets?.source_video_relative_path ||
+      (assets?.representative_frame_relative_paths &&
+        assets.representative_frame_relative_paths.length > 0)
+  );
 
   return (
     <AbsoluteFill
@@ -19,6 +33,9 @@ export const CtaCard: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
           "radial-gradient(circle at 50% 35%, #2a103e 0%, #0c0a18 60%, #050308 100%)",
       }}
     >
+      {hasRealMedia && (
+        <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.7} />
+      )}
       <AbsoluteFill
         style={{
           background: `radial-gradient(circle at 50% 30%, ${accent}33 0%, transparent 55%)`,
@@ -78,7 +95,7 @@ export const CtaCard: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
               marginTop: 60,
               maxWidth: 880,
               textAlign: "center",
-              color: "rgba(255,255,255,0.55)",
+              color: "rgba(255,255,255,0.7)",
               fontFamily: "system-ui, sans-serif",
               fontSize: 28,
               lineHeight: 1.4,

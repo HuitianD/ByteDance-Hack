@@ -1,19 +1,26 @@
 import { AbsoluteFill } from "remotion";
 
 import { Caption } from "../components/Caption";
-import { PlaceholderVisual } from "../components/PlaceholderVisual";
+import { SourceMedia } from "../media/SourceMedia";
 import type { StoryboardScene } from "../types";
 
-export const HookTitle: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+export const HookTitle: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const text = scene.text || "Hook";
 
   return (
     <AbsoluteFill>
-      <PlaceholderVisual
-        seed={`hook:${scene.scene_id}`}
-        visualDescription={scene.visual_description}
-        assetPrompt={scene.asset_prompt ?? undefined}
-        motion
+      {/* Hook uses the source video as a fullscreen background when available
+          so the opening beat lands on real footage, not a gradient card. */}
+      <SourceMedia
+        scene={scene}
+        sceneIndex={sceneIndex}
+        preferVideo
+        scrim={0.55}
       />
       <AbsoluteFill
         style={{

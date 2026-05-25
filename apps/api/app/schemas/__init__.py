@@ -1,4 +1,4 @@
-from .render_job import RenderJob, RenderJobStatus
+from .render_job import RenderJob, RenderJobStatus, RenderMediaSummary
 from .storyboard import (
     Storyboard,
     StoryboardGenerateRequest,
@@ -17,6 +17,7 @@ __all__ = [
     "FrameInfo",
     "RenderJob",
     "RenderJobStatus",
+    "RenderMediaSummary",
     "SceneSegment",
     "Storyboard",
     "StoryboardGenerateRequest",

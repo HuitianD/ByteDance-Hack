@@ -93,9 +93,14 @@ export function UploadCard({ onUploaded, onReset }: Props) {
           1
         </span>
         <h2 id="upload-heading" className="text-lg font-medium text-neutral-100">
-          Upload a sample video
+          Upload sample video
         </h2>
       </div>
+
+      <p className="mb-4 text-xs text-neutral-500">
+        Pick a short vertical clip (5–60s ideal). The renderer will reuse this
+        footage as the visual background of the final mp4.
+      </p>
 
       <form onSubmit={onSubmit} className="space-y-4">
         <input
@@ -120,7 +125,13 @@ export function UploadCard({ onUploaded, onReset }: Props) {
             disabled={!file || busy}
             className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
           >
-            {busy ? "Uploading..." : "Upload"}
+            {busy ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner /> Uploading...
+              </span>
+            ) : (
+              "Upload"
+            )}
           </button>
           {(file || result || error) && !busy && (
             <button
@@ -147,10 +158,16 @@ export function UploadCard({ onUploaded, onReset }: Props) {
         </div>
       )}
 
+      {!file && !result && !error && !busy && (
+        <p className="mt-5 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
+          No file picked yet. Choose a video to start the pipeline.
+        </p>
+      )}
+
       {result && (
         <div className="mt-5 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-4">
           <p className="mb-3 text-sm font-medium text-emerald-300">
-            Upload successful
+            Upload successful — continue to step 2
           </p>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[max-content_1fr]">
             <dt className="text-neutral-500">Job ID</dt>
@@ -177,5 +194,14 @@ export function UploadCard({ onUploaded, onReset }: Props) {
         </div>
       )}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+    />
   );
 }

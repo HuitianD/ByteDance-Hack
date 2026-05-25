@@ -75,7 +75,12 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1080}
         height={1920}
-        defaultProps={{ storyboard: DEFAULT_STORYBOARD } satisfies StoryboardProps}
+        defaultProps={
+          {
+            storyboard: DEFAULT_STORYBOARD,
+            mediaAssets: null,
+          } satisfies StoryboardProps
+        }
         calculateMetadata={({ props }) => {
           const sb = props.storyboard;
           const fps = sb.fps || 30;

@@ -154,7 +154,10 @@ class SeedClient(LLMClient):
         messages.append({"role": "user", "content": prompt})
 
         body: dict[str, Any] = {
-            "model": self._model,  # or self._endpoint_id -- see TODO above
+            # Volcano Ark expects the endpoint id (EP) as `model`, not the
+            # human-readable model name. SEED_MODEL is kept in config for
+            # logging/diagnostics only.
+            "model": self._endpoint_id,
             "messages": messages,
         }
         if max_tokens is not None:

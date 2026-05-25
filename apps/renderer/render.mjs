@@ -21,13 +21,21 @@ import { renderMedia, selectComposition } from "@remotion/renderer";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function parseArgs(argv) {
-  const args = { storyboard: null, output: null, compositionId: "Storyboard" };
+  const args = {
+    storyboard: null,
+    output: null,
+    compositionId: "Storyboard",
+    mediaAssets: null,
+    publicDir: null,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const next = () => argv[++i];
     if (a === "--storyboard") args.storyboard = next();
     else if (a === "--output") args.output = next();
     else if (a === "--composition") args.compositionId = next();
+    else if (a === "--media-assets") args.mediaAssets = next();
+    else if (a === "--public-dir") args.publicDir = next();
     else if (a === "--help" || a === "-h") {
       printUsage();
       process.exit(0);
@@ -39,10 +47,18 @@ function parseArgs(argv) {
 function printUsage() {
   console.log(`Usage:
   node render.mjs --storyboard <path/to/storyboard.json> --output <path/to/out.mp4>
+                  [--media-assets <path/to/media_assets.json>]
+                  [--public-dir <path/to/data_dir>]
 
 Options:
-  --composition <id>    Composition id to render (default: Storyboard)
-  -h, --help            Show this help
+  --composition <id>     Composition id to render (default: Storyboard)
+  --media-assets <path>  Sidecar JSON with source video / extracted frame
+                         paths to reuse as visual background. When omitted
+                         the renderer falls back to placeholder visuals.
+  --public-dir <path>    Directory mounted as Remotion's staticFile() root
+                         (typically DATA_DIR). Required when media-assets
+                         reference relative paths.
+  -h, --help             Show this help
 
 Reads the storyboard JSON file and renders it through the Remotion entry
 in src/index.ts. Writes an mp4 (h264) to the requested output path.`);
@@ -71,17 +87,53 @@ async function main() {
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
+  let mediaAssets = null;
+  if (args.mediaAssets) {
+    const mediaAssetsPath = path.resolve(args.mediaAssets);
+    if (!fs.existsSync(mediaAssetsPath)) {
+      console.error(`media assets JSON not found: ${mediaAssetsPath}`);
+      process.exit(66);
+    }
+    try {
+      mediaAssets = JSON.parse(fs.readFileSync(mediaAssetsPath, "utf-8"));
+    } catch (err) {
+      console.error(
+        `media assets JSON could not be parsed: ${err && err.message ? err.message : err}`
+      );
+      process.exit(65);
+    }
+  }
+
   const entryPoint = path.join(__dirname, "src", "index.ts");
 
   const t0 = Date.now();
   console.log(`[viralcraft-renderer] storyboard=${storyboard.id} scenes=${storyboard.scenes.length}`);
   console.log(`[viralcraft-renderer] entry=${entryPoint}`);
   console.log(`[viralcraft-renderer] output=${outputPath}`);
+  if (mediaAssets) {
+    console.log(
+      `[viralcraft-renderer] media job_id=${mediaAssets.job_id || "?"}` +
+        ` video=${!!mediaAssets.source_video_relative_path}` +
+        ` frames=${(mediaAssets.representative_frame_relative_paths || []).length}`
+    );
+  } else {
+    console.log(`[viralcraft-renderer] media none (placeholder mode)`);
+  }
+
+  const publicDir = args.publicDir ? path.resolve(args.publicDir) : undefined;
+  if (publicDir && !fs.existsSync(publicDir)) {
+    console.error(`--public-dir does not exist: ${publicDir}`);
+    process.exit(66);
+  }
+  if (publicDir) {
+    console.log(`[viralcraft-renderer] publicDir=${publicDir}`);
+  }
 
   const bundleLocation = await bundle({
     entryPoint,
     // Cache outside the project so npm install / git clean don't nuke it.
     outDir: path.join(os.tmpdir(), "viralcraft-remotion-bundle"),
+    publicDir,
     onProgress: (p) => {
       // throttle: only log on each 10% step
       if (p % 10 === 0) {
@@ -93,12 +145,15 @@ async function main() {
     `[viralcraft-renderer] bundle ready in ${Date.now() - t0}ms at ${bundleLocation}`
   );
 
-  const inputProps = { storyboard };
+  const inputProps = mediaAssets
+    ? { storyboard, mediaAssets }
+    : { storyboard };
 
   const composition = await selectComposition({
     serveUrl: bundleLocation,
     id: args.compositionId,
     inputProps,
+    ...(publicDir ? { publicDir } : {}),
   });
   console.log(
     `[viralcraft-renderer] composition: ${composition.id} ${composition.width}x${composition.height} @ ${composition.fps}fps frames=${composition.durationInFrames}`
@@ -112,6 +167,7 @@ async function main() {
     outputLocation: outputPath,
     inputProps,
     overwrite: true,
+    ...(publicDir ? { publicDir } : {}),
     chromiumOptions: {
       disableWebSecurity: true,
     },

@@ -1,12 +1,44 @@
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, Img, staticFile } from "remotion";
 
 import { Caption } from "../components/Caption";
 import { PlaceholderVisual } from "../components/PlaceholderVisual";
+import { useMediaAssets } from "../media/MediaContext";
 import type { StoryboardScene } from "../types";
 
-export const SplitCompare: React.FC<{ scene: StoryboardScene }> = ({
-  scene,
-}) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+/**
+ * Split layout for structural comparison.
+ *
+ * We do not have generated "after" footage in the MVP, so when real source
+ * frames exist we use two different stills from the same upload and label
+ * them as "Original Style" / "Remixed Direction" -- making the lineage
+ * honest instead of faking a before/after VFX comparison.
+ */
+export const SplitCompare: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
+  const assets = useMediaAssets();
+  const frameRels = assets?.representative_frame_relative_paths ?? [];
+
+  // Pick two distinct frames if possible; otherwise placeholders.
+  const topRel =
+    frameRels.length > 0 ? frameRels[sceneIndex % frameRels.length] : null;
+  const bottomRel =
+    frameRels.length > 1
+      ? frameRels[
+          (sceneIndex + Math.max(1, Math.floor(frameRels.length / 2))) %
+            frameRels.length
+        ]
+      : null;
+  const topUrl = topRel ? staticFile(topRel) : null;
+  const bottomUrl = bottomRel ? staticFile(bottomRel) : null;
+
+  const realMedia = Boolean(topUrl && bottomUrl);
+  const topLabel = realMedia ? "ORIGINAL STYLE" : "STRUCTURE A";
+  const bottomLabel = realMedia ? "REMIXED DIRECTION" : "STRUCTURE B";
+
   return (
     <AbsoluteFill style={{ background: "#0a0a14" }}>
       {/* Top half */}
@@ -18,12 +50,26 @@ export const SplitCompare: React.FC<{ scene: StoryboardScene }> = ({
           overflow: "hidden",
         }}
       >
-        <PlaceholderVisual
-          seed={`split-a:${scene.scene_id}`}
-          visualDescription="Before"
-          motion={false}
-        />
-        <CornerLabel text="BEFORE" />
+        {topUrl ? (
+          <Img
+            src={topUrl}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "saturate(0.92) brightness(0.92)",
+            }}
+          />
+        ) : (
+          <PlaceholderVisual
+            seed={`split-a:${scene.scene_id}`}
+            visualDescription={topLabel}
+            motion={false}
+          />
+        )}
+        <CornerLabel text={topLabel} />
       </div>
 
       {/* Divider */}
@@ -51,12 +97,26 @@ export const SplitCompare: React.FC<{ scene: StoryboardScene }> = ({
           overflow: "hidden",
         }}
       >
-        <PlaceholderVisual
-          seed={`split-b:${scene.scene_id}`}
-          visualDescription="After"
-          motion={false}
-        />
-        <CornerLabel text="AFTER" />
+        {bottomUrl ? (
+          <Img
+            src={bottomUrl}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "saturate(1.1) brightness(1.02)",
+            }}
+          />
+        ) : (
+          <PlaceholderVisual
+            seed={`split-b:${scene.scene_id}`}
+            visualDescription={bottomLabel}
+            motion={false}
+          />
+        )}
+        <CornerLabel text={bottomLabel} />
       </div>
 
       {/* Centered caption stripe */}
@@ -105,11 +165,12 @@ const CornerLabel: React.FC<{ text: string }> = ({ text }) => (
       top: 50,
       padding: "8px 16px",
       borderRadius: 999,
-      background: "rgba(255,255,255,0.12)",
+      background: "rgba(0,0,0,0.5)",
+      backdropFilter: "blur(8px)",
       border: "1px solid rgba(255,255,255,0.25)",
       color: "white",
       fontFamily: "system-ui, sans-serif",
-      fontSize: 26,
+      fontSize: 24,
       letterSpacing: 2,
       fontWeight: 700,
     }}

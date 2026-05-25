@@ -3,33 +3,33 @@ import { WorkflowSection } from "@/components/WorkflowSection";
 const STEPS = [
   {
     n: 1,
-    title: "Upload sample video",
+    title: "Upload Sample Video",
     description:
-      "Drop in a short video. We extract frames, detect scenes, and prepare it for analysis.",
+      "Drop in a short clip. The renderer will reuse this footage as the visual layer of the final mp4.",
   },
   {
     n: 2,
-    title: "View analysis timeline",
+    title: "Analyze Video",
     description:
-      "Inspect detected scenes, pacing, hooks, and editing atoms on a timeline.",
+      "Deterministic, non-LLM: extracts metadata, samples representative frames, and detects scene boundaries.",
   },
   {
     n: 3,
-    title: "Save structure card",
+    title: "Extract Structure Card",
     description:
-      "Distill the reusable creative structure into a card stored in the knowledge base.",
+      "Distill the reusable creative structure (hook, pacing, editing atoms) into a knowledge-base card.",
   },
   {
     n: 4,
-    title: "Generate new storyboard",
+    title: "Generate Storyboard",
     description:
-      "Provide a topic or brief. Retrieval picks relevant structure cards and produces a storyboard JSON.",
+      "Apply the saved structure to a new brief. The LLM returns a typed storyboard JSON ready for rendering.",
   },
   {
     n: 5,
-    title: "Preview and render final video",
+    title: "Render Final Video",
     description:
-      "Render the storyboard with Remotion + FFmpeg into a final mp4.",
+      "Remotion renders the storyboard, reusing your source footage and overlaying generated captions, cards, and motion graphics.",
   },
 ];
 
@@ -46,8 +46,22 @@ export default function HomePage() {
         <p className="mt-5 max-w-2xl text-lg text-neutral-400">
           ViralCraft learns reusable creative structure from example videos and
           applies it to new topics, products, or briefs. Every output is built
-          from a structured storyboard JSON before it&rsquo;s rendered.
+          from a structured storyboard JSON, then rendered with your uploaded
+          footage as the visual layer.
         </p>
+
+        <div className="mt-6 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 text-sm text-neutral-300">
+          <p className="mb-1 text-xs font-medium uppercase tracking-widest text-fuchsia-400">
+            MVP scope
+          </p>
+          <p>
+            This MVP performs <strong>structure transfer + media remixing</strong>{" "}
+            — it reuses your uploaded footage as the visual layer and overlays
+            generated structure, captions, and motion graphics. It is{" "}
+            <strong>not</strong> a pixel-level VFX editor: no face filters,
+            object insertion, inpainting, or makeup transfer.
+          </p>
+        </div>
       </header>
 
       <div className="mb-14">
@@ -88,6 +102,7 @@ export default function HomePage() {
 
       <footer className="mt-16 border-t border-neutral-900 pt-6 text-xs text-neutral-500">
         Full pipeline wired: upload → analyze → structure card → storyboard → render.
+        Source-aware renderer reuses uploaded footage when available.
       </footer>
     </main>
   );

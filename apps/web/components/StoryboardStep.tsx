@@ -12,6 +12,29 @@ type Props = {
 
 const DEFAULT_DURATION = 20;
 
+/**
+ * Demo prompts that fit the current MVP (structure transfer + media
+ * remixing, no pixel-level VFX). Surfaced as one-click chips above the
+ * brief textarea.
+ */
+const RECOMMENDED_PROMPTS: { label: string; prompt: string }[] = [
+  {
+    label: "Luxury perfume ad",
+    prompt:
+      "Create a 20-second luxury perfume ad based on this beauty close-up video. Keep the cinematic slow reveal, premium mood, emotional close-ups, and strong visual hook. Add elegant captions, fragrance benefit beats, and a final brand CTA.",
+  },
+  {
+    label: "Skincare product ad",
+    prompt:
+      "Generate a skincare product ad using this video's soft lighting, close-up rhythm, and premium visual tone. Focus on hydration, glow, and a clean CTA.",
+  },
+  {
+    label: "AI coding tool promo",
+    prompt:
+      "Create a short AI coding tool promo using this video's visual pacing, but replace the message with productivity, automation, and developer focus.",
+  },
+];
+
 export function StoryboardStep({ jobId, onGenerated }: Props) {
   const [prompt, setPrompt] = useState("");
   const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
@@ -66,8 +89,36 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
         </h2>
       </div>
 
+      <p className="mb-4 text-xs text-neutral-500">
+        Describe what you want the new video to be about. The LLM applies the
+        extracted structure to your topic and outputs a typed storyboard JSON.
+      </p>
+
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="block text-xs font-medium uppercase tracking-widest text-neutral-500">
+              Recommended demo prompts
+            </span>
+            <span className="text-[10px] uppercase tracking-widest text-neutral-600">
+              click to apply
+            </span>
+          </div>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {RECOMMENDED_PROMPTS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                disabled={busy}
+                onClick={() => setPrompt(p.prompt)}
+                className="rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-medium text-fuchsia-200 transition hover:border-fuchsia-500/60 hover:bg-fuchsia-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                title={p.prompt}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
           <label
             htmlFor="user_prompt"
             className="mb-1 block text-xs font-medium uppercase tracking-widest text-neutral-500"
@@ -78,8 +129,8 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
             id="user_prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. 30s ad for a reusable water bottle, energetic, hook-first"
-            rows={3}
+            placeholder="e.g. 20-second luxury perfume ad — cinematic slow reveals, premium mood, emotional close-ups, strong visual hook."
+            rows={4}
             disabled={busy}
             className="w-full resize-y rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:border-fuchsia-500/50 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/30 disabled:opacity-60"
           />
@@ -110,16 +161,40 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
             disabled={busy || !prompt.trim()}
             className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
           >
-            {busy ? "Generating..." : storyboard ? "Re-generate" : "Generate Storyboard"}
+            {busy ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner /> Generating...
+              </span>
+            ) : storyboard ? (
+              "Re-generate storyboard"
+            ) : (
+              "Generate storyboard"
+            )}
           </button>
         </div>
 
         <p className="text-xs text-neutral-500">
-          Uses structure card from job{" "}
-          <span className="font-mono text-neutral-300">{jobId}</span>.
-          LLM call goes through the active provider.
+          Uses the structure card from job{" "}
+          <span className="font-mono text-neutral-300">{jobId}</span>. LLM
+          call goes through the active provider.
         </p>
       </form>
+
+      {!storyboard && !busy && !error && (
+        <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
+          Pick a recommended prompt or write your own brief, then click{" "}
+          <span className="text-neutral-300">Generate storyboard</span>.
+        </p>
+      )}
+
+      {busy && (
+        <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
+          <span className="inline-flex items-center gap-2">
+            <Spinner /> Asking the LLM for a structured storyboard and
+            validating each scene...
+          </span>
+        </div>
+      )}
 
       {error && (
         <div
@@ -132,6 +207,15 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
 
       {storyboard && <StoryboardView storyboard={storyboard} />}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+    />
   );
 }
 

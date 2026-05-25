@@ -67,16 +67,40 @@ export function StructureCardStep({ jobId, onExtracted }: Props) {
           disabled={busy}
           className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
-          {busy ? "Extracting..." : card ? "Re-extract" : "Extract Structure Card"}
+          {busy ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> Extracting...
+            </span>
+          ) : card ? (
+            "Re-extract structure card"
+          ) : (
+            "Extract structure card"
+          )}
         </button>
       </div>
 
       <p className="text-xs text-neutral-500">
-        Uses the active LLM provider via the adapter. Set{" "}
-        <code className="text-neutral-300">LLM_PROVIDER=mock</code> in
-        <code className="text-neutral-300"> apps/api/.env</code> to test
-        without real Seed calls.
+        Distills a reusable creative structure (hook, pacing, atoms) from the
+        analyzed video. Uses the active LLM provider — set{" "}
+        <code className="text-neutral-300">LLM_PROVIDER=mock</code> in{" "}
+        <code className="text-neutral-300">apps/api/.env</code> to test without
+        live Seed calls.
       </p>
+
+      {!card && !busy && !error && (
+        <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
+          Click <span className="text-neutral-300">Extract structure card</span>{" "}
+          to distill the reusable creative pattern for this upload.
+        </p>
+      )}
+
+      {busy && (
+        <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
+          <span className="inline-flex items-center gap-2">
+            <Spinner /> Calling the LLM and validating the structure card...
+          </span>
+        </div>
+      )}
 
       {error && (
         <div
@@ -89,6 +113,15 @@ export function StructureCardStep({ jobId, onExtracted }: Props) {
 
       {card && <CardDetails card={card} />}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+    />
   );
 }
 

@@ -3,13 +3,14 @@
 import { useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
-import type { RenderJob } from "@/lib/types";
+import type { RenderJob, RenderMediaSummary } from "@/lib/types";
 
 type Props = {
   storyboardId: string;
   storyboardTitle?: string;
   width?: number;
   height?: number;
+  onRendered?: (job: RenderJob) => void;
 };
 
 export function RenderStep({
@@ -17,6 +18,7 @@ export function RenderStep({
   storyboardTitle,
   width = 1080,
   height = 1920,
+  onRendered,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,14 +30,9 @@ export function RenderStep({
     try {
       const r = await api.renderStoryboard(storyboardId);
       setJob(r);
+      onRendered?.(r);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(`Render failed (${err.status}): ${err.message}`);
-      } else if (err instanceof Error) {
-        setError(`Render failed: ${err.message}`);
-      } else {
-        setError("Render failed.");
-      }
+      setError(formatRenderError(err));
     } finally {
       setBusy(false);
     }
@@ -56,7 +53,7 @@ export function RenderStep({
           5
         </span>
         <h2 id="render-heading" className="text-lg font-medium text-neutral-100">
-          Render video
+          Render final video
         </h2>
       </div>
 
@@ -65,19 +62,37 @@ export function RenderStep({
           type="button"
           onClick={run}
           disabled={busy}
+          aria-busy={busy}
           className="rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
-          {busy
-            ? "Rendering... (can take 30-90s)"
-            : job?.status === "succeeded"
-              ? "Re-render"
-              : "Render Video"}
+          {busy ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> Rendering... (do not close this tab)
+            </span>
+          ) : job?.status === "succeeded" ? (
+            "Re-render video"
+          ) : (
+            "Render final video"
+          )}
         </button>
         <p className="text-xs text-neutral-500">
           Storyboard{" "}
           <span className="font-mono text-neutral-300">{storyboardId}</span>
-          {storyboardTitle ? ` — “${storyboardTitle}”` : ""}. Spawns Remotion
-          on the API host.
+          {storyboardTitle ? ` — \u201C${storyboardTitle}\u201D` : ""}.
+        </p>
+      </div>
+
+      <div className="mt-3 space-y-2">
+        <p className="rounded-md border border-rose-500/20 bg-rose-500/5 px-3 py-2 text-xs text-rose-200">
+          First render can take <span className="font-medium">60–90 seconds</span>{" "}
+          while Remotion bundles the project and Chromium warms up. Subsequent
+          renders are much faster.
+        </p>
+        <p className="rounded-md border border-neutral-800 bg-neutral-950/50 px-3 py-2 text-xs text-neutral-400">
+          The renderer reuses uploaded source footage and extracted frames as
+          the visual background, and adds generated captions, structure, and
+          motion graphics on top. It does <em>not</em> perform pixel-level VFX
+          edits (face filters, object compositing, inpainting) in this MVP.
         </p>
       </div>
 
@@ -115,6 +130,11 @@ export function RenderStep({
                 </span>
               </Row>
             )}
+            {job.media_summary && (
+              <Row label="Media used">
+                <MediaSummaryBadge summary={job.media_summary} />
+              </Row>
+            )}
           </dl>
 
           {videoUrl && (
@@ -143,6 +163,48 @@ export function RenderStep({
         </div>
       )}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+    />
+  );
+}
+
+function MediaSummaryBadge({ summary }: { summary: RenderMediaSummary }) {
+  if (summary.placeholder_only) {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-2">
+        <span className="inline-block rounded-full bg-amber-500/10 px-3 py-0.5 text-xs font-medium uppercase tracking-wider text-amber-300 ring-1 ring-amber-500/30">
+          Placeholder visuals
+        </span>
+        <span className="text-xs text-neutral-500">
+          (no source media linked — gradient backgrounds only)
+        </span>
+      </span>
+    );
+  }
+
+  const parts: string[] = [];
+  if (summary.used_source_video) parts.push("source video");
+  if (summary.used_frames) parts.push(`${summary.frame_count} frames`);
+  const label = parts.join(" + ") || "placeholder visuals";
+
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <span className="inline-block rounded-full bg-emerald-500/10 px-3 py-0.5 text-xs font-medium uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-500/30">
+        {label}
+      </span>
+      {summary.source_job_id && (
+        <span className="font-mono text-[10px] text-neutral-500">
+          job {summary.source_job_id.slice(0, 8)}…
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -176,4 +238,31 @@ function Row({
       <dd className="text-neutral-200">{children}</dd>
     </div>
   );
+}
+
+/**
+ * Map a thrown error from the render request into a single user-friendly
+ * sentence + an optional details line so the UI never shows a raw stack
+ * trace or JSON blob.
+ */
+function formatRenderError(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 404) {
+      return "We couldn't find this storyboard on the server. Try generating it again.";
+    }
+    if (err.status === 503) {
+      return "The Remotion renderer isn't installed. Run `npm install --workspace apps/renderer` and retry.";
+    }
+    if (err.status === 502) {
+      return (
+        "Render subprocess failed. Open the API logs for the full traceback; " +
+        "common causes: Chromium download interrupted or a layout exception."
+      );
+    }
+    return `Render failed (${err.status}): ${err.message}`;
+  }
+  if (err instanceof Error) {
+    return `Render failed: ${err.message}`;
+  }
+  return "Render failed for an unknown reason.";
 }

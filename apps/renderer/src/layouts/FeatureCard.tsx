@@ -1,13 +1,16 @@
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Caption } from "../components/Caption";
-import { PlaceholderVisual } from "../components/PlaceholderVisual";
+import { SourceMedia } from "../media/SourceMedia";
 import { applyAnimation } from "../util/animation";
 import type { StoryboardScene } from "../types";
 
-export const FeatureCard: React.FC<{ scene: StoryboardScene }> = ({
-  scene,
-}) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+export const FeatureCard: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
@@ -20,10 +23,7 @@ export const FeatureCard: React.FC<{ scene: StoryboardScene }> = ({
 
   return (
     <AbsoluteFill>
-      <PlaceholderVisual
-        seed={`feature:${scene.scene_id}`}
-        motion
-      />
+      <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.55} />
 
       <AbsoluteFill
         style={{

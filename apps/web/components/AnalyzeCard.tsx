@@ -62,7 +62,7 @@ export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
             2
           </span>
           <h2 id="analyze-heading" className="text-lg font-medium text-neutral-100">
-            Analyze (basic)
+            Analyze video
           </h2>
         </div>
         <button
@@ -71,14 +71,38 @@ export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
           disabled={busy}
           className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
-          {busy ? "Analyzing..." : result ? "Re-run" : "Analyze Basic"}
+          {busy ? (
+            <span className="inline-flex items-center gap-2">
+              <Spinner /> Analyzing...
+            </span>
+          ) : result ? (
+            "Re-run analysis"
+          ) : (
+            "Analyze video"
+          )}
         </button>
       </div>
 
       <p className="text-xs text-neutral-500">
-        Deterministic, non-LLM: metadata + sampled frames + scene segments.
-        Job <span className="font-mono text-neutral-300">{jobId}</span>.
+        Deterministic, non-LLM: extracts metadata, samples representative
+        frames, and segments scenes. Job{" "}
+        <span className="font-mono text-neutral-300">{jobId}</span>.
       </p>
+
+      {!result && !busy && !error && (
+        <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
+          Click <span className="text-neutral-300">Analyze video</span> to
+          extract frames + scenes. This unlocks step 3.
+        </p>
+      )}
+
+      {busy && !result && (
+        <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
+          <span className="inline-flex items-center gap-2">
+            <Spinner /> Sampling frames and detecting scene boundaries...
+          </span>
+        </div>
+      )}
 
       {error && (
         <div
@@ -97,6 +121,15 @@ export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
         </div>
       )}
     </section>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+    />
   );
 }
 

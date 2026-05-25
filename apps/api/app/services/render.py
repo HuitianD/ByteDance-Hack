@@ -19,9 +19,11 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 from app.core.config import RENDERER_DIR
-from app.schemas.render_job import RenderJob
+from app.schemas.render_job import RenderJob, RenderMediaSummary
+from app.services.media_assets import MediaAssets, resolve_media_assets
 
 log = logging.getLogger(__name__)
 
@@ -112,24 +114,36 @@ async def _run_renderer(
     cli: Path,
     storyboard_path: Path,
     output_path: Path,
+    public_dir: Optional[Path] = None,
+    media_assets_path: Optional[Path] = None,
 ) -> tuple[int, str, str]:
     """Spawn the Node CLI and capture stdout/stderr."""
     node_bin = _resolve_node_bin()
     log.info(
-        "Spawning renderer: %s %s --storyboard %s --output %s",
+        "Spawning renderer: %s %s --storyboard %s --output %s media=%s public=%s",
         node_bin,
         cli,
         storyboard_path,
         output_path,
+        media_assets_path,
+        public_dir,
     )
 
-    proc = await asyncio.create_subprocess_exec(
+    argv: list[str] = [
         node_bin,
         str(cli),
         "--storyboard",
         str(storyboard_path),
         "--output",
         str(output_path),
+    ]
+    if public_dir is not None:
+        argv.extend(["--public-dir", str(public_dir)])
+    if media_assets_path is not None:
+        argv.extend(["--media-assets", str(media_assets_path)])
+
+    proc = await asyncio.create_subprocess_exec(
+        *argv,
         cwd=str(RENDERER_DIR),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -190,6 +204,31 @@ async def render_storyboard(
     output_path = render_output_path(data_dir, storyboard_id)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Resolve source media from the storyboard's source structure cards.
+    # If nothing maps, the renderer falls back to placeholder visuals.
+    media_assets: MediaAssets = resolve_media_assets(
+        data_dir=data_dir, storyboard=sb_json
+    )
+
+    media_assets_path: Optional[Path] = None
+    if media_assets.has_media:
+        media_assets_path = output_path.parent / "media_assets.json"
+        media_assets_path.write_text(
+            json.dumps(media_assets.to_dict(), indent=2), encoding="utf-8"
+        )
+        log.info(
+            "Source-aware render: job_id=%s frames=%d video=%s",
+            media_assets.job_id,
+            len(media_assets.representative_frame_paths),
+            bool(media_assets.source_video_path),
+        )
+    else:
+        log.info(
+            "No source media resolved for storyboard %s; renderer will use "
+            "placeholder visuals.",
+            storyboard_id,
+        )
+
     started = time.monotonic()
     started_at = datetime.now(timezone.utc)
     rj_id = str(uuid.uuid4())
@@ -198,6 +237,10 @@ async def render_storyboard(
         cli=cli,
         storyboard_path=sb_path,
         output_path=output_path,
+        # Mount DATA_DIR as Remotion's publicDir so `staticFile()` can
+        # resolve uploads/frames at render time.
+        public_dir=data_dir if media_assets.has_media else None,
+        media_assets_path=media_assets_path,
     )
     elapsed_ms = int((time.monotonic() - started) * 1000)
 
@@ -221,7 +264,22 @@ async def render_storyboard(
         output_url=f"/static/{render_output_relative(storyboard_id)}",
         duration_ms=elapsed_ms,
         error=None,
+        media_summary=_summarize_media(media_assets),
         created_at=started_at,
+    )
+
+
+def _summarize_media(assets: MediaAssets) -> RenderMediaSummary:
+    """Reduce a `MediaAssets` bundle to the compact summary surfaced on
+    the RenderJob (so the UI can show what footage was reused)."""
+    used_video = bool(assets.source_video_relative_path)
+    frame_count = len(assets.representative_frame_relative_paths)
+    return RenderMediaSummary(
+        used_source_video=used_video,
+        used_frames=frame_count > 0,
+        frame_count=frame_count,
+        source_job_id=assets.job_id,
+        placeholder_only=not assets.has_media,
     )
 
 

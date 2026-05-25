@@ -3,59 +3,86 @@
 import { useState } from "react";
 
 import { AnalyzeCard } from "@/components/AnalyzeCard";
+import { PipelineSummary } from "@/components/PipelineSummary";
 import { RenderStep } from "@/components/RenderStep";
 import { StoryboardStep } from "@/components/StoryboardStep";
 import { StructureCardStep } from "@/components/StructureCardStep";
 import { UploadCard } from "@/components/UploadCard";
-import type { Storyboard } from "@/lib/types";
+import type {
+  RenderJob,
+  Storyboard,
+  StructureCard,
+  VideoAnalysis,
+  VideoUploadResponse,
+} from "@/lib/types";
 
 export function WorkflowSection() {
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [analyzed, setAnalyzed] = useState(false);
-  const [cardExtracted, setCardExtracted] = useState(false);
+  const [upload, setUpload] = useState<VideoUploadResponse | null>(null);
+  const [analysis, setAnalysis] = useState<VideoAnalysis | null>(null);
+  const [card, setCard] = useState<StructureCard | null>(null);
   const [storyboard, setStoryboard] = useState<Storyboard | null>(null);
+  const [render, setRender] = useState<RenderJob | null>(null);
 
-  function reset() {
-    setJobId(null);
-    setAnalyzed(false);
-    setCardExtracted(false);
+  function resetAll() {
+    setUpload(null);
+    setAnalysis(null);
+    setCard(null);
     setStoryboard(null);
+    setRender(null);
   }
+
+  const jobId = upload?.job_id ?? null;
+  const cardExtracted = !!card;
+  const analyzed = !!analysis;
 
   return (
     <div className="space-y-6">
+      <PipelineSummary
+        upload={upload}
+        analysis={analysis}
+        card={card}
+        storyboard={storyboard}
+        render={render}
+      />
+
       <UploadCard
         onUploaded={(r) => {
-          setJobId(r.job_id);
-          setAnalyzed(false);
-          setCardExtracted(false);
+          setUpload(r);
+          setAnalysis(null);
+          setCard(null);
           setStoryboard(null);
+          setRender(null);
         }}
-        onReset={reset}
+        onReset={resetAll}
       />
       {jobId && (
         <AnalyzeCard
           jobId={jobId}
-          onAnalyzed={() => {
-            setAnalyzed(true);
-            setCardExtracted(false);
+          onAnalyzed={(a) => {
+            setAnalysis(a);
+            setCard(null);
             setStoryboard(null);
+            setRender(null);
           }}
         />
       )}
       {jobId && analyzed && (
         <StructureCardStep
           jobId={jobId}
-          onExtracted={() => {
-            setCardExtracted(true);
+          onExtracted={(c) => {
+            setCard(c);
             setStoryboard(null);
+            setRender(null);
           }}
         />
       )}
       {jobId && analyzed && cardExtracted && (
         <StoryboardStep
           jobId={jobId}
-          onGenerated={(sb) => setStoryboard(sb)}
+          onGenerated={(sb) => {
+            setStoryboard(sb);
+            setRender(null);
+          }}
         />
       )}
       {storyboard && (
@@ -64,6 +91,7 @@ export function WorkflowSection() {
           storyboardTitle={storyboard.title}
           width={storyboard.width}
           height={storyboard.height}
+          onRendered={(rj) => setRender(rj)}
         />
       )}
     </div>

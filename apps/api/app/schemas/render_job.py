@@ -21,6 +21,37 @@ RenderJobStatus = Literal[
 ]
 
 
+class RenderMediaSummary(BaseModel):
+    """Compact summary of which source media was used to render the mp4.
+
+    Surfaced on `RenderJob.media_summary` so the UI can tell the user
+    whether the output used the uploaded video, extracted frames, or
+    fell back to the placeholder visuals.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    used_source_video: bool = Field(
+        description="True when the uploaded original.* was passed to Remotion."
+    )
+    used_frames: bool = Field(
+        description="True when at least one extracted frame was passed in."
+    )
+    frame_count: int = Field(
+        ge=0, description="Number of representative frames bundled."
+    )
+    source_job_id: Optional[str] = Field(
+        default=None,
+        description="job_id whose upload + frames were reused, if any.",
+    )
+    placeholder_only: bool = Field(
+        description=(
+            "True when no real media was resolved and the renderer ran in "
+            "premium-gradient placeholder mode."
+        ),
+    )
+
+
 class RenderJob(BaseModel):
     """Returned by `POST /storyboards/{id}/render`."""
 
@@ -48,6 +79,14 @@ class RenderJob(BaseModel):
     error: Optional[str] = Field(
         default=None,
         description="Last few lines of the renderer's stderr if status='failed'.",
+    )
+
+    media_summary: Optional[RenderMediaSummary] = Field(
+        default=None,
+        description=(
+            "Compact summary of the media reused for this render "
+            "(source video / extracted frames / placeholder-only)."
+        ),
     )
 
     created_at: datetime = Field(description="UTC timestamp when the job started.")

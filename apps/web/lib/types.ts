@@ -114,6 +114,15 @@ export type RenderJobStatus =
   | "failed"
   | "cancelled";
 
+/** Mirrors `RenderMediaSummary` on the API side. */
+export interface RenderMediaSummary {
+  used_source_video: boolean;
+  used_frames: boolean;
+  frame_count: number;
+  source_job_id?: string | null;
+  placeholder_only: boolean;
+}
+
 export interface RenderJob {
   render_job_id: string;
   storyboard_id: string;
@@ -124,5 +133,6 @@ export interface RenderJob {
   output_url?: string | null;
   duration_ms?: number | null;
   error?: string | null;
+  media_summary?: RenderMediaSummary | null;
   created_at: string;
 }

@@ -12,43 +12,58 @@ import { FeatureCard } from "./layouts/FeatureCard";
 import { HookTitle } from "./layouts/HookTitle";
 import { SplitCompare } from "./layouts/SplitCompare";
 import { TextOverMedia } from "./layouts/TextOverMedia";
-import type { Storyboard as StoryboardType, StoryboardScene } from "./types";
+import { MediaAssetsProvider } from "./media/MediaContext";
+import type {
+  MediaAssets,
+  Storyboard as StoryboardType,
+  StoryboardScene,
+} from "./types";
 import { applyTransitionIn } from "./util/animation";
 import { normalizeLayout } from "./util/layout";
 
 export type StoryboardProps = {
   storyboard: StoryboardType;
+  mediaAssets?: MediaAssets | null;
 };
 
 export const StoryboardComposition: React.FC<StoryboardProps> = ({
   storyboard,
+  mediaAssets,
 }) => {
   const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill style={{ background: "#04050a" }}>
-      <Series>
-        {storyboard.scenes.map((scene) => {
-          const frames = Math.max(1, Math.round(scene.duration_seconds * fps));
-          return (
-            <Series.Sequence
-              key={scene.scene_id}
-              durationInFrames={frames}
-              name={`${scene.scene_id}:${scene.layout}`}
-            >
-              <SceneContainer scene={scene} />
-            </Series.Sequence>
-          );
-        })}
-      </Series>
+    <MediaAssetsProvider value={mediaAssets ?? null}>
+      <AbsoluteFill style={{ background: "#04050a" }}>
+        <Series>
+          {storyboard.scenes.map((scene, sceneIndex) => {
+            const frames = Math.max(
+              1,
+              Math.round(scene.duration_seconds * fps)
+            );
+            return (
+              <Series.Sequence
+                key={scene.scene_id}
+                durationInFrames={frames}
+                name={`${scene.scene_id}:${scene.layout}`}
+              >
+                <SceneContainer scene={scene} sceneIndex={sceneIndex} />
+              </Series.Sequence>
+            );
+          })}
+        </Series>
 
-      {/* Lower-third metadata strip; tiny, observable, doesn't fight content. */}
-      <MetadataStrip storyboard={storyboard} />
-    </AbsoluteFill>
+        {/* Lower-third metadata strip; tiny, observable, doesn't fight content. */}
+        <MetadataStrip storyboard={storyboard} />
+      </AbsoluteFill>
+    </MediaAssetsProvider>
   );
 };
 
-const SceneContainer: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
+const SceneContainer: React.FC<{
+  scene: StoryboardScene;
+  sceneIndex: number;
+}> = ({ scene, sceneIndex }) => {
   const frame = useCurrentFrame();
   const layout = normalizeLayout(scene.layout);
   const transitionOpacity = applyTransitionIn(scene.transition, frame);
@@ -56,23 +71,23 @@ const SceneContainer: React.FC<{ scene: StoryboardScene }> = ({ scene }) => {
   let inner: React.ReactNode;
   switch (layout) {
     case "hook_title":
-      inner = <HookTitle scene={scene} />;
+      inner = <HookTitle scene={scene} sceneIndex={sceneIndex} />;
       break;
     case "text_over_media":
-      inner = <TextOverMedia scene={scene} />;
+      inner = <TextOverMedia scene={scene} sceneIndex={sceneIndex} />;
       break;
     case "split_compare":
-      inner = <SplitCompare scene={scene} />;
+      inner = <SplitCompare scene={scene} sceneIndex={sceneIndex} />;
       break;
     case "feature_card":
-      inner = <FeatureCard scene={scene} />;
+      inner = <FeatureCard scene={scene} sceneIndex={sceneIndex} />;
       break;
     case "cta_card":
-      inner = <CtaCard scene={scene} />;
+      inner = <CtaCard scene={scene} sceneIndex={sceneIndex} />;
       break;
     case "default_scene":
     default:
-      inner = <DefaultScene scene={scene} />;
+      inner = <DefaultScene scene={scene} sceneIndex={sceneIndex} />;
       break;
   }
 

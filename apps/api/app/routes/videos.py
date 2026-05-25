@@ -286,9 +286,16 @@ async def extract_structure_card_route(
                 },
             ) from exc
         except LLMError as exc:
+            detail = f"LLM call failed: {exc}"
+            if "HTTP 401" in str(exc) or "AuthenticationError" in str(exc):
+                detail = (
+                    "Seed rejected the API key (HTTP 401). "
+                    "Verify SEED_API_KEY in apps/api/.env matches your Volcano "
+                    "Ark console, or set LLM_PROVIDER=mock and restart the API."
+                )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"LLM call failed: {exc}",
+                detail=detail,
             ) from exc
     finally:
         await client.aclose()

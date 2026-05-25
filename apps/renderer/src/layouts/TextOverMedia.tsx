@@ -1,28 +1,18 @@
 import { AbsoluteFill } from "remotion";
 
 import { Caption } from "../components/Caption";
-import { PlaceholderVisual } from "../components/PlaceholderVisual";
+import { SourceMedia } from "../media/SourceMedia";
 import type { StoryboardScene } from "../types";
 
-export const TextOverMedia: React.FC<{ scene: StoryboardScene }> = ({
-  scene,
-}) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+export const TextOverMedia: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   return (
     <AbsoluteFill>
-      <PlaceholderVisual
-        seed={`media:${scene.scene_id}`}
-        visualDescription={scene.visual_description}
-        assetPrompt={scene.asset_prompt ?? undefined}
-        motion
-      />
-
-      {/* Top scrim */}
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.0) 45%)",
-        }}
-      />
+      <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.5} />
 
       {scene.text && (
         <div
@@ -46,14 +36,6 @@ export const TextOverMedia: React.FC<{ scene: StoryboardScene }> = ({
           />
         </div>
       )}
-
-      {/* Bottom scrim with description for readability */}
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.0) 35%)",
-        }}
-      />
     </AbsoluteFill>
   );
 };

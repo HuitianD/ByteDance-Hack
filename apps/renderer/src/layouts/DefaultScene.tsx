@@ -1,20 +1,18 @@
 import { AbsoluteFill } from "remotion";
 
 import { Caption } from "../components/Caption";
-import { PlaceholderVisual } from "../components/PlaceholderVisual";
+import { SourceMedia } from "../media/SourceMedia";
 import type { StoryboardScene } from "../types";
 
-export const DefaultScene: React.FC<{ scene: StoryboardScene }> = ({
-  scene,
-}) => {
+type Props = {
+  scene: StoryboardScene;
+  sceneIndex?: number;
+};
+
+export const DefaultScene: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   return (
     <AbsoluteFill>
-      <PlaceholderVisual
-        seed={`default:${scene.scene_id}`}
-        visualDescription={scene.visual_description}
-        assetPrompt={scene.asset_prompt ?? undefined}
-        motion
-      />
+      <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.5} />
       <AbsoluteFill
         style={{
           alignItems: "center",
