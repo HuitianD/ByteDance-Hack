@@ -1,7 +1,8 @@
 /**
  * RenderJob: tracks the lifecycle of rendering a Storyboard to mp4.
  *
- * Placeholder definition for the initial scaffold.
+ * Wire format (snake_case) matches the Pydantic schema in
+ * `apps/api/app/schemas/render_job.py`.
  */
 
 import type { StoryboardId } from "./storyboard";
@@ -16,15 +17,18 @@ export type RenderJobStatus =
   | "cancelled";
 
 export interface RenderJob {
-  id: RenderJobId;
-  storyboardId: StoryboardId;
+  render_job_id: RenderJobId;
+  storyboard_id: StoryboardId;
   status: RenderJobStatus;
-  /** 0-100. Optional while queued. */
-  progress?: number;
-  /** Output mp4 path (set once status === "succeeded"). */
-  outputPath?: string;
-  /** Error message if status === "failed". */
-  error?: string;
-  createdAt: string;
-  updatedAt: string;
+
+  /** Path to the rendered mp4 relative to DATA_DIR. */
+  output_path?: string | null;
+  /** Server-absolute URL path; frontend prepends API base URL. */
+  output_url?: string | null;
+
+  duration_ms?: number | null;
+  error?: string | null;
+
+  /** ISO 8601 UTC timestamp. */
+  created_at: string;
 }

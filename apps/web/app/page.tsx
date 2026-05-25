@@ -87,7 +87,7 @@ export default function HomePage() {
       </section>
 
       <footer className="mt-16 border-t border-neutral-900 pt-6 text-xs text-neutral-500">
-        Steps 3&ndash;5 (structure cards, storyboard, render) are not wired up yet.
+        Full pipeline wired: upload → analyze → structure card → storyboard → render.
       </footer>
     </main>
   );

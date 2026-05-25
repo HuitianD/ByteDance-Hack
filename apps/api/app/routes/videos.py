@@ -9,7 +9,14 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from app.core.config import Settings, get_settings
+from app.llm.base import LLMConfigError, LLMError
+from app.llm.factory import get_llm_client
+from app.schemas.structure_card import StructureCard
 from app.schemas.video import VideoAnalysis, VideoUploadResponse
+from app.services.structure_card import (
+    StructureCardValidationError,
+    extract_structure_card,
+)
 from app.services.video_analysis import AnalysisError, analyze_video_file
 
 router = APIRouter(prefix="/videos", tags=["videos"])
@@ -207,3 +214,87 @@ def analyze_basic(
     )
 
     return analysis
+
+
+# ---------------------------------------------------------------------------
+# POST /videos/{job_id}/extract-structure-card
+# ---------------------------------------------------------------------------
+
+
+def _load_video_analysis(data_dir: Path, job_id: str) -> VideoAnalysis:
+    analysis_path = data_dir / "knowledge_base" / job_id / "video_analysis.json"
+    if not analysis_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                f"video_analysis.json not found for job '{job_id}'. "
+                "Run POST /videos/{job_id}/analyze-basic first."
+            ),
+        )
+    try:
+        return VideoAnalysis.model_validate_json(analysis_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 -- corrupt or stale JSON
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to parse video_analysis.json for job '{job_id}': {exc}",
+        ) from exc
+
+
+@router.post(
+    "/{job_id}/extract-structure-card",
+    response_model=StructureCard,
+    summary="Build a reusable StructureCard from VideoAnalysis (uses LLM adapter)",
+)
+async def extract_structure_card_route(
+    job_id: str,
+    settings: Settings = Depends(get_settings),
+) -> StructureCard:
+    job_id = _validate_job_id(job_id)
+
+    data_dir = settings.data_dir_path()
+
+    # 404 if upload dir is missing entirely; cleaner error than "no analysis".
+    if not (data_dir / "uploads" / job_id).exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job '{job_id}' not found.",
+        )
+
+    analysis = _load_video_analysis(data_dir, job_id)
+
+    try:
+        client = get_llm_client(settings)
+    except LLMConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                f"LLM provider not configured: {exc} "
+                "Either fix apps/api/.env or set LLM_PROVIDER=mock for testing."
+            ),
+        ) from exc
+
+    try:
+        try:
+            card = await extract_structure_card(analysis, client)
+        except StructureCardValidationError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "message": "LLM returned a payload that did not validate "
+                    "as a StructureCard.",
+                    "errors": exc.args[0] if exc.args else [],
+                },
+            ) from exc
+        except LLMError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"LLM call failed: {exc}",
+            ) from exc
+    finally:
+        await client.aclose()
+
+    out_path = data_dir / "knowledge_base" / job_id / "structure_card.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(card.model_dump_json(indent=2), encoding="utf-8")
+
+    return card

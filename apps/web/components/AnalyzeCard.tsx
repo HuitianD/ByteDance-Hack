@@ -22,9 +22,10 @@ function formatSeconds(s: number): string {
 
 type Props = {
   jobId: string;
+  onAnalyzed?: (analysis: VideoAnalysis) => void;
 };
 
-export function AnalyzeCard({ jobId }: Props) {
+export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoAnalysis | null>(null);
@@ -36,6 +37,7 @@ export function AnalyzeCard({ jobId }: Props) {
     try {
       const r = await api.analyzeVideoBasic(jobId);
       setResult(r);
+      onAnalyzed?.(r);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`Analysis failed (${err.status}): ${err.message}`);

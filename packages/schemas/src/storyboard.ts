@@ -1,8 +1,8 @@
 /**
- * Storyboard: the structured output produced from a user request plus
- * retrieved structure cards. The renderer consumes this directly.
+ * Storyboard: the generation output that drives the Remotion renderer.
  *
- * Placeholder definition for the initial scaffold.
+ * TS canonical schema. Pydantic mirror lives in
+ * `apps/api/app/schemas/storyboard.py` (snake_case API surface).
  */
 
 import type { StructureCardId } from "./structureCard";
@@ -10,35 +10,44 @@ import type { StructureCardId } from "./structureCard";
 export type StoryboardId = string;
 
 export interface StoryboardScene {
-  id: string;
-  /** Duration of this scene in seconds. */
-  durationSec: number;
-  /** Layout token, e.g. "centered-text", "split", "fullscreen-asset". */
+  sceneId: string;
+  startTime: number;
+  endTime: number;
+  durationSeconds: number;
+
+  /** Layout token consumed by the renderer. */
   layout: string;
   /** Optional on-screen text. */
   text?: string;
-  /** Optional asset reference (image/video/audio path or URL). */
-  asset?: string;
-  /** Optional transition into this scene. */
-  transition?: string;
-  /** Optional animation token applied to the scene's primary element. */
+  /** Plain-language description of what should be on screen. */
+  visualDescription: string;
+  /** Animation token applied to the scene's primary element. */
   animation?: string;
-  /** Optional caption style token. */
-  captionStyle?: string;
-  /** Which structure card inspired this scene. */
+  /** Transition into this scene. */
+  transition?: string;
+  /** Prompt for generating the scene's visual asset. */
+  assetPrompt?: string;
+
+  /** StructureCard id this scene was derived from. */
   sourceStructureCardId?: StructureCardId;
+  /** Editing-atom kinds (e.g. "hook", "reveal") referenced by this scene. */
+  sourceEditingAtoms: string[];
 }
 
 export interface Storyboard {
   id: StoryboardId;
   title: string;
-  /** The original user request / brief. */
-  prompt: string;
-  /** Structure cards retrieved and used during generation. */
-  retrievedStructureCardIds: StructureCardId[];
+  userPrompt: string;
+  targetDurationSeconds: number;
+  actualDurationSeconds: number;
+
   fps: number;
   width: number;
   height: number;
+
   scenes: StoryboardScene[];
+  sourceStructureCardIds: StructureCardId[];
+
+  /** ISO 8601 UTC timestamp. */
   createdAt: string;
 }

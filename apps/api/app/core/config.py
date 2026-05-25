@@ -24,6 +24,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 #: like the default DATA_DIR (`../../data`) regardless of cwd.
 API_DIR = Path(__file__).resolve().parent.parent.parent
 
+#: Repo root, two levels above `apps/api/`.
+REPO_ROOT = API_DIR.parent.parent
+
+#: Where prompt templates live.
+PROMPTS_DIR = REPO_ROOT / "packages" / "prompts"
+
+#: Remotion renderer app directory.
+RENDERER_DIR = REPO_ROOT / "apps" / "renderer"
+
 
 class Settings(BaseSettings):
     """Process-wide configuration.

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from app.core.config import get_settings
 from app.routes.llm import router as llm_router
+from app.routes.storyboards import router as storyboards_router
 from app.routes.videos import router as videos_router
 
 settings = get_settings()
@@ -41,6 +42,7 @@ def health() -> HealthResponse:
 
 app.include_router(llm_router)
 app.include_router(videos_router)
+app.include_router(storyboards_router)
 
 # Serve files under DATA_DIR (frames, renders, etc.) at /static/...
 # Read-only; only files written by the API are exposed.

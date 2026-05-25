@@ -4,14 +4,17 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Placeholder ../../data/renders/placeholder.mp4",
+    "render:placeholder": "remotion render src/index.ts Placeholder ../../data/renders/placeholder.mp4",
+    "render:storyboard": "node render.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@remotion/bundler": "^4.0.235",
     "@remotion/cli": "^4.0.235",
-    "remotion": "^4.0.235",
+    "@remotion/renderer": "^4.0.235",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.235"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
