@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 import type { Storyboard, StoryboardScene } from "@/lib/types";
 
 type Props = {
@@ -12,30 +13,8 @@ type Props = {
 
 const DEFAULT_DURATION = 20;
 
-/**
- * Demo prompts that fit the current MVP (structure transfer + media
- * remixing, no pixel-level VFX). Surfaced as one-click chips above the
- * brief textarea.
- */
-const RECOMMENDED_PROMPTS: { label: string; prompt: string }[] = [
-  {
-    label: "Luxury perfume ad",
-    prompt:
-      "Create a 20-second luxury perfume ad based on this beauty close-up video. Keep the cinematic slow reveal, premium mood, emotional close-ups, and strong visual hook. Add elegant captions, fragrance benefit beats, and a final brand CTA.",
-  },
-  {
-    label: "Skincare product ad",
-    prompt:
-      "Generate a skincare product ad using this video's soft lighting, close-up rhythm, and premium visual tone. Focus on hydration, glow, and a clean CTA.",
-  },
-  {
-    label: "AI coding tool promo",
-    prompt:
-      "Create a short AI coding tool promo using this video's visual pacing, but replace the message with productivity, automation, and developer focus.",
-  },
-];
-
 export function StoryboardStep({ jobId, onGenerated }: Props) {
+  const { t } = useLanguage();
   const [prompt, setPrompt] = useState("");
   const [duration, setDuration] = useState<number>(DEFAULT_DURATION);
   const [busy, setBusy] = useState(false);
@@ -45,7 +24,7 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!prompt.trim()) {
-      setError("Please enter a prompt.");
+      setError(t.storyboard.promptRequired);
       return;
     }
     setBusy(true);
@@ -61,11 +40,11 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
       onGenerated?.(r);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(`Generation failed (${err.status}): ${err.message}`);
+        setError(t.storyboard.failedStatus(err.status, err.message));
       } else if (err instanceof Error) {
-        setError(`Generation failed: ${err.message}`);
+        setError(t.storyboard.failedMessage(err.message));
       } else {
-        setError("Generation failed.");
+        setError(t.storyboard.failedGeneric);
       }
     } finally {
       setBusy(false);
@@ -85,27 +64,26 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
           id="storyboard-heading"
           className="text-lg font-medium text-neutral-100"
         >
-          Generate storyboard
+          {t.storyboard.heading}
         </h2>
       </div>
 
       <p className="mb-4 text-xs text-neutral-500">
-        Describe what you want the new video to be about. The LLM applies the
-        extracted structure to your topic and outputs a typed storyboard JSON.
+        {t.storyboard.description}
       </p>
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="block text-xs font-medium uppercase tracking-widest text-neutral-500">
-              Recommended demo prompts
+              {t.storyboard.recommendedPrompts}
             </span>
             <span className="text-[10px] uppercase tracking-widest text-neutral-600">
-              click to apply
+              {t.storyboard.clickToApply}
             </span>
           </div>
           <div className="mb-3 flex flex-wrap gap-2">
-            {RECOMMENDED_PROMPTS.map((p) => (
+            {t.storyboard.prompts.map((p) => (
               <button
                 key={p.label}
                 type="button"
@@ -123,26 +101,26 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
             htmlFor="user_prompt"
             className="mb-1 block text-xs font-medium uppercase tracking-widest text-neutral-500"
           >
-            Topic / brief
+            {t.storyboard.topicBrief}
           </label>
           <textarea
             id="user_prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. 20-second luxury perfume ad — cinematic slow reveals, premium mood, emotional close-ups, strong visual hook."
+            placeholder={t.storyboard.placeholder}
             rows={4}
             disabled={busy}
             className="w-full resize-y rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:border-fuchsia-500/50 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/30 disabled:opacity-60"
           />
         </div>
 
-        <div className="flex items-end gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           <div>
             <label
               htmlFor="target_duration"
               className="mb-1 block text-xs font-medium uppercase tracking-widest text-neutral-500"
             >
-              Target duration (seconds)
+              {t.storyboard.targetDuration}
             </label>
             <input
               id="target_duration"
@@ -159,39 +137,38 @@ export function StoryboardStep({ jobId, onGenerated }: Props) {
           <button
             type="submit"
             disabled={busy || !prompt.trim()}
-            className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
+            className="w-fit rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
           >
             {busy ? (
               <span className="inline-flex items-center gap-2">
-                <Spinner /> Generating...
+                <Spinner /> {t.storyboard.generating}
               </span>
             ) : storyboard ? (
-              "Re-generate storyboard"
+              t.storyboard.regenerate
             ) : (
-              "Generate storyboard"
+              t.storyboard.generate
             )}
           </button>
         </div>
 
         <p className="text-xs text-neutral-500">
-          Uses the structure card from job{" "}
-          <span className="font-mono text-neutral-300">{jobId}</span>. LLM
-          call goes through the active provider.
+          {t.storyboard.usesStructureBeforeJob}{" "}
+          <span className="font-mono text-neutral-300">{jobId}</span>
+          {t.storyboard.usesStructureAfterJob}
         </p>
       </form>
 
       {!storyboard && !busy && !error && (
         <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
-          Pick a recommended prompt or write your own brief, then click{" "}
-          <span className="text-neutral-300">Generate storyboard</span>.
+          {t.storyboard.emptyBeforeButton}{" "}
+          <span className="text-neutral-300">{t.storyboard.emptyButton}</span>.
         </p>
       )}
 
       {busy && (
         <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
           <span className="inline-flex items-center gap-2">
-            <Spinner /> Asking the LLM for a structured storyboard and
-            validating each scene...
+            <Spinner /> {t.storyboard.busy}
           </span>
         </div>
       )}
@@ -220,20 +197,24 @@ function Spinner() {
 }
 
 function StoryboardView({ storyboard }: { storyboard: Storyboard }) {
+  const { t } = useLanguage();
   const total = storyboard.actual_duration_seconds || 1;
   return (
     <div className="mt-6 space-y-6">
       <div>
         <p className="text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Title
+          {t.storyboard.title}
         </p>
         <p className="mt-1 text-xl font-medium text-fuchsia-300">
           {storyboard.title}
         </p>
         <p className="mt-2 text-xs text-neutral-500">
-          {storyboard.scenes.length} scenes &middot; target{" "}
-          {storyboard.target_duration_seconds}s &middot; actual{" "}
-          {storyboard.actual_duration_seconds.toFixed(2)}s &middot;{" "}
+          {t.storyboard.summary(
+            storyboard.scenes.length,
+            storyboard.target_duration_seconds,
+            storyboard.actual_duration_seconds.toFixed(2)
+          )}{" "}
+          &middot;{" "}
           {storyboard.width}×{storyboard.height} @ {storyboard.fps}fps
         </p>
       </div>
@@ -246,7 +227,11 @@ function StoryboardView({ storyboard }: { storyboard: Storyboard }) {
           return (
             <div
               key={s.scene_id}
-              title={`${s.scene_id}: ${s.start_time.toFixed(2)}s → ${s.end_time.toFixed(2)}s`}
+              title={t.storyboard.timelineTitle(
+                s.scene_id,
+                s.start_time.toFixed(2),
+                s.end_time.toFixed(2)
+              )}
               className="absolute top-0 h-full"
               style={{
                 left: `${left}%`,
@@ -268,12 +253,12 @@ function StoryboardView({ storyboard }: { storyboard: Storyboard }) {
       </ol>
 
       <div className="border-t border-neutral-800 pt-4 text-xs text-neutral-500">
-        <span className="text-neutral-400">storyboard id:</span>{" "}
+        <span className="text-neutral-400">{t.storyboard.storyboardId}</span>{" "}
         <span className="font-mono text-neutral-300">{storyboard.id}</span>
         {storyboard.source_structure_card_ids.length > 0 && (
           <>
             <span className="mx-3">·</span>
-            <span className="text-neutral-400">source cards:</span>{" "}
+            <span className="text-neutral-400">{t.storyboard.sourceCards}</span>{" "}
             <span className="font-mono text-neutral-300">
               {storyboard.source_structure_card_ids.join(", ")}
             </span>
@@ -285,6 +270,8 @@ function StoryboardView({ storyboard }: { storyboard: Storyboard }) {
 }
 
 function SceneCard({ index, scene }: { index: number; scene: StoryboardScene }) {
+  const { t } = useLanguage();
+
   return (
     <li className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
       <div className="mb-3 flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -292,8 +279,11 @@ function SceneCard({ index, scene }: { index: number; scene: StoryboardScene }) 
           {String(index + 1).padStart(2, "0")} · {scene.scene_id}
         </span>
         <span className="font-mono text-xs text-neutral-400">
-          {scene.start_time.toFixed(2)}s → {scene.end_time.toFixed(2)}s (
-          {scene.duration_seconds.toFixed(2)}s)
+          {t.storyboard.sceneTime(
+            scene.start_time.toFixed(2),
+            scene.end_time.toFixed(2),
+            scene.duration_seconds.toFixed(2)
+          )}
         </span>
         <span className="rounded bg-neutral-800 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-300">
           {scene.layout}
@@ -302,37 +292,39 @@ function SceneCard({ index, scene }: { index: number; scene: StoryboardScene }) 
 
       <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[max-content_1fr]">
         {scene.text && (
-          <Row label="Text">
-            <span className="text-neutral-100">&ldquo;{scene.text}&rdquo;</span>
+          <Row label={t.storyboard.text}>
+            <span className="text-neutral-100">
+              {t.storyboard.quoteText(scene.text)}
+            </span>
           </Row>
         )}
-        <Row label="Visual">{scene.visual_description}</Row>
+        <Row label={t.storyboard.visual}>{scene.visual_description}</Row>
         {scene.asset_prompt && (
-          <Row label="Asset prompt">
+          <Row label={t.storyboard.assetPrompt}>
             <span className="font-mono text-xs text-neutral-400">
               {scene.asset_prompt}
             </span>
           </Row>
         )}
-        <Row label="Animation">
+        <Row label={t.storyboard.animation}>
           <span className="font-mono text-xs text-neutral-400">
-            {scene.animation || "—"}
+            {scene.animation || t.common.notAvailable}
           </span>
         </Row>
-        <Row label="Transition">
+        <Row label={t.storyboard.transition}>
           <span className="font-mono text-xs text-neutral-400">
-            {scene.transition || "—"}
+            {scene.transition || t.common.notAvailable}
           </span>
         </Row>
         {scene.source_structure_card_id && (
-          <Row label="Source card">
+          <Row label={t.storyboard.sourceCard}>
             <span className="font-mono text-xs text-neutral-500">
               {scene.source_structure_card_id}
             </span>
           </Row>
         )}
         {scene.source_editing_atoms.length > 0 && (
-          <Row label="Source atoms">
+          <Row label={t.storyboard.sourceAtoms}>
             <span className="flex flex-wrap gap-1">
               {scene.source_editing_atoms.map((a) => (
                 <span

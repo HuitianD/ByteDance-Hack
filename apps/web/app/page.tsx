@@ -1,65 +1,37 @@
-import { WorkflowSection } from "@/components/WorkflowSection";
+"use client";
 
-const STEPS = [
-  {
-    n: 1,
-    title: "Upload Sample Video",
-    description:
-      "Drop in a short clip. The renderer will reuse this footage as the visual layer of the final mp4.",
-  },
-  {
-    n: 2,
-    title: "Analyze Video",
-    description:
-      "Deterministic, non-LLM: extracts metadata, samples representative frames, and detects scene boundaries.",
-  },
-  {
-    n: 3,
-    title: "Extract Structure Card",
-    description:
-      "Distill the reusable creative structure (hook, pacing, editing atoms) into a knowledge-base card.",
-  },
-  {
-    n: 4,
-    title: "Generate Storyboard",
-    description:
-      "Apply the saved structure to a new brief. The LLM returns a typed storyboard JSON ready for rendering.",
-  },
-  {
-    n: 5,
-    title: "Render Final Video",
-    description:
-      "Remotion renders the storyboard, reusing your source footage and overlaying generated captions, cards, and motion graphics.",
-  },
-];
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { WorkflowSection } from "@/components/WorkflowSection";
+import { useLanguage } from "@/lib/i18n";
 
 export default function HomePage() {
+  const { t } = useLanguage();
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16">
+    <main className="mx-auto max-w-4xl px-6 py-20">
+      <LanguageToggle />
+
       <header className="mb-12">
         <p className="mb-3 text-sm font-medium uppercase tracking-widest text-fuchsia-400">
-          ViralCraft
+          {t.page.eyebrow}
         </p>
         <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
-          Transfer the structure of viral short videos to your own ideas.
+          {t.page.heroTitle}
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-neutral-400">
-          ViralCraft learns reusable creative structure from example videos and
-          applies it to new topics, products, or briefs. Every output is built
-          from a structured storyboard JSON, then rendered with your uploaded
-          footage as the visual layer.
+          {t.page.heroBody}
         </p>
 
         <div className="mt-6 rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 text-sm text-neutral-300">
           <p className="mb-1 text-xs font-medium uppercase tracking-widest text-fuchsia-400">
-            MVP scope
+            {t.page.mvpLabel}
           </p>
           <p>
-            This MVP performs <strong>structure transfer + media remixing</strong>{" "}
-            — it reuses your uploaded footage as the visual layer and overlays
-            generated structure, captions, and motion graphics. It is{" "}
-            <strong>not</strong> a pixel-level VFX editor: no face filters,
-            object insertion, inpainting, or makeup transfer.
+            {t.page.mvpBeforeStrong}
+            <strong>{t.page.mvpStrong}</strong>
+            {t.page.mvpAfterStrong}
+            <strong>{t.page.mvpNot}</strong>
+            {t.page.mvpAfterNot}
           </p>
         </div>
       </header>
@@ -73,11 +45,11 @@ export default function HomePage() {
           id="workflow-heading"
           className="mb-6 text-sm font-medium uppercase tracking-widest text-neutral-500"
         >
-          Demo workflow
+          {t.page.workflowHeading}
         </h2>
 
         <ol className="space-y-4">
-          {STEPS.map((step) => (
+          {t.page.steps.map((step) => (
             <li
               key={step.n}
               className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5 transition hover:border-neutral-700"
@@ -101,8 +73,7 @@ export default function HomePage() {
       </section>
 
       <footer className="mt-16 border-t border-neutral-900 pt-6 text-xs text-neutral-500">
-        Full pipeline wired: upload → analyze → structure card → storyboard → render.
-        Source-aware renderer reuses uploaded footage when available.
+        {t.page.footer}
       </footer>
     </main>
   );

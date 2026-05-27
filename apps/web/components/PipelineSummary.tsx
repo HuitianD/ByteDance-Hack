@@ -7,6 +7,7 @@ import type {
   VideoAnalysis,
   VideoUploadResponse,
 } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n";
 
 export type PipelineStepStatus = "pending" | "active" | "done" | "error";
 
@@ -34,6 +35,7 @@ export function PipelineSummary({
   storyboard,
   render,
 }: Props) {
+  const { t } = useLanguage();
   const steps: {
     n: number;
     label: string;
@@ -42,7 +44,7 @@ export function PipelineSummary({
   }[] = [
     {
       n: 1,
-      label: "Upload",
+      label: t.pipeline.steps.upload,
       status: upload ? "done" : "pending",
       note: upload?.original_filename
         ? `${upload.original_filename}`
@@ -50,29 +52,32 @@ export function PipelineSummary({
     },
     {
       n: 2,
-      label: "Analyze",
+      label: t.pipeline.steps.analyze,
       status: analysis ? "done" : upload ? "active" : "pending",
       note: analysis
-        ? `${analysis.scenes.length} scenes · ${analysis.frames.length} frames`
+        ? t.pipeline.analysisNote(analysis.scenes.length, analysis.frames.length)
         : undefined,
     },
     {
       n: 3,
-      label: "Structure card",
+      label: t.pipeline.steps.structureCard,
       status: card ? "done" : analysis ? "active" : "pending",
       note: card?.pattern_name,
     },
     {
       n: 4,
-      label: "Storyboard",
+      label: t.pipeline.steps.storyboard,
       status: storyboard ? "done" : card ? "active" : "pending",
       note: storyboard
-        ? `${storyboard.scenes.length} scenes · ${storyboard.actual_duration_seconds.toFixed(0)}s`
+        ? t.pipeline.storyboardNote(
+            storyboard.scenes.length,
+            Number(storyboard.actual_duration_seconds.toFixed(0))
+          )
         : undefined,
     },
     {
       n: 5,
-      label: "Render",
+      label: t.pipeline.steps.render,
       status:
         render?.status === "succeeded"
           ? "done"
@@ -83,33 +88,33 @@ export function PipelineSummary({
               : "pending",
       note:
         render?.status === "succeeded" && render.duration_ms
-          ? `${(render.duration_ms / 1000).toFixed(1)}s`
+          ? t.common.seconds((render.duration_ms / 1000).toFixed(1))
           : undefined,
     },
   ];
 
-  const mediaTag = renderMediaTag(render);
+  const mediaTag = renderMediaTag(render, t);
 
   return (
     <section
-      aria-label="Pipeline summary"
+      aria-label={t.pipeline.ariaLabel}
       className="sticky top-3 z-10 rounded-2xl border border-neutral-800 bg-neutral-950/80 p-4 shadow-lg shadow-black/40 backdrop-blur"
     >
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-baseline gap-3">
           <span className="text-xs font-medium uppercase tracking-widest text-neutral-500">
-            Pipeline
+            {t.pipeline.title}
           </span>
           {upload ? (
             <span className="text-xs text-neutral-400">
-              job{" "}
+              {t.pipeline.job}{" "}
               <span className="font-mono text-neutral-200">
                 {upload.job_id.slice(0, 8)}…
               </span>
             </span>
           ) : (
             <span className="text-xs text-neutral-500">
-              waiting for upload
+              {t.pipeline.waitingForUpload}
             </span>
           )}
         </div>
@@ -129,7 +134,7 @@ export function PipelineSummary({
               </span>
             </div>
             <p className="mt-1 truncate text-[11px] text-neutral-500">
-              {step.note ?? statusLabel(step.status)}
+              {step.note ?? statusLabel(step.status, t)}
             </p>
           </li>
         ))}
@@ -138,21 +143,12 @@ export function PipelineSummary({
   );
 }
 
-function statusLabel(s: PipelineStepStatus): string {
-  switch (s) {
-    case "done":
-      return "complete";
-    case "active":
-      return "ready";
-    case "error":
-      return "failed";
-    case "pending":
-    default:
-      return "—";
-  }
+function statusLabel(s: PipelineStepStatus, t: ReturnType<typeof useLanguage>["t"]): string {
+  return t.pipeline.statusLabel[s];
 }
 
 function StatusDot({ status }: { status: PipelineStepStatus }) {
+  const { t } = useLanguage();
   const cls = {
     pending: "bg-neutral-700",
     active: "bg-amber-400 animate-pulse",
@@ -161,13 +157,16 @@ function StatusDot({ status }: { status: PipelineStepStatus }) {
   }[status];
   return (
     <span
-      aria-label={statusLabel(status)}
+      aria-label={statusLabel(status, t)}
       className={`inline-block h-2 w-2 rounded-full ${cls}`}
     />
   );
 }
 
-function renderMediaTag(render: RenderJob | null): React.ReactNode {
+function renderMediaTag(
+  render: RenderJob | null,
+  t: ReturnType<typeof useLanguage>["t"]
+): React.ReactNode {
   if (!render || render.status !== "succeeded") return null;
   const ms = render.media_summary;
   if (!ms) return null;
@@ -175,18 +174,18 @@ function renderMediaTag(render: RenderJob | null): React.ReactNode {
   if (ms.placeholder_only) {
     return (
       <span className="inline-block rounded-full bg-amber-500/10 px-3 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-300 ring-1 ring-amber-500/30">
-        Source media: none · placeholder visuals
+        {t.pipeline.sourceMediaNone}
       </span>
     );
   }
 
   const parts: string[] = [];
-  if (ms.used_source_video) parts.push("video");
-  if (ms.used_frames) parts.push(`${ms.frame_count} frames`);
+  if (ms.used_source_video) parts.push(t.pipeline.video);
+  if (ms.used_frames) parts.push(t.pipeline.frames(ms.frame_count));
 
   return (
     <span className="inline-block rounded-full bg-emerald-500/10 px-3 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-500/30">
-      Source media: {parts.join(" + ")}
+      {t.pipeline.sourceMedia(parts.join(" + "))}
     </span>
   );
 }
