@@ -15,6 +15,7 @@ Why a skeleton instead of a guess:
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Mapping
 
 import httpx
@@ -26,6 +27,25 @@ from .base import LLMClient, LLMConfigError, LLMError
 #: Volcano Ark cn-beijing endpoint -- override via env if your deployment
 #: uses a different region or host.
 DEFAULT_SEED_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+
+
+_FENCE_OPEN_RE = re.compile(r"^```[a-zA-Z0-9_-]*\s*")
+_FENCE_CLOSE_RE = re.compile(r"\s*```\s*$")
+
+
+def _strip_code_fences(text: str) -> str:
+    """Remove ```json ... ``` (or plain ```) wrappers some models emit.
+
+    Doubao-Lite, without `response_format`, usually obeys the "no markdown
+    fences" instruction but occasionally still wraps the JSON. We strip
+    defensively; non-fenced inputs pass through unchanged.
+    """
+    s = text.strip()
+    if not s.startswith("```"):
+        return s
+    s = _FENCE_OPEN_RE.sub("", s, count=1)
+    s = _FENCE_CLOSE_RE.sub("", s, count=1)
+    return s.strip()
 
 
 class SeedClient(LLMClient):
@@ -102,15 +122,21 @@ class SeedClient(LLMClient):
         max_tokens: int | None = None,
         temperature: float | None = None,
     ) -> dict[str, Any]:
+        # Doubao-Seed-Lite rejects `response_format=json_object` (HTTP 400
+        # InvalidParameter). Schema is already embedded in the prompt
+        # templates and the system message requires raw JSON, so we omit
+        # the field and validate after parsing. `schema_hint` is kept in
+        # the signature for forward-compat with models that accept it.
+        _ = schema_hint
         payload = self._build_payload(
             prompt=prompt,
             system=system,
             max_tokens=max_tokens,
             temperature=temperature,
-            response_format={"type": "json_object", "schema": schema_hint},
+            response_format=None,
         )
         data = await self._post_chat(payload)
-        text = self._extract_text(data)
+        text = _strip_code_fences(self._extract_text(data))
         try:
             parsed = json.loads(text)
         except json.JSONDecodeError as exc:
