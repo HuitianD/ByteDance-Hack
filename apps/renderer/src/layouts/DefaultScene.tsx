@@ -12,7 +12,11 @@ type Props = {
 export const DefaultScene: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   return (
     <AbsoluteFill>
-      <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.5} />
+      <SourceMedia
+        scene={scene}
+        sceneIndex={sceneIndex}
+        layout="default_scene"
+      />
       <AbsoluteFill
         style={{
           alignItems: "center",

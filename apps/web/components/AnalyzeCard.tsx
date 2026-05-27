@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import { localeToDateLocale, useLanguage, type Locale } from "@/lib/i18n";
 import type { VideoAnalysis } from "@/lib/types";
 
 function formatBytes(bytes: number): string {
@@ -12,10 +13,14 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
-function formatSeconds(s: number): string {
+function formatSeconds(s: number, locale: Locale): string {
   if (!isFinite(s)) return "—";
   const m = Math.floor(s / 60);
   const r = s - m * 60;
+  if (locale === "zh") {
+    if (m > 0) return `${m}分 ${r.toFixed(1)}秒`;
+    return `${r.toFixed(2)}秒`;
+  }
   if (m > 0) return `${m}m ${r.toFixed(1)}s`;
   return `${r.toFixed(2)}s`;
 }
@@ -26,6 +31,7 @@ type Props = {
 };
 
 export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
+  const { t } = useLanguage();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<VideoAnalysis | null>(null);
@@ -40,11 +46,11 @@ export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
       onAnalyzed?.(r);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(`Analysis failed (${err.status}): ${err.message}`);
+        setError(t.analyze.failedStatus(err.status, err.message));
       } else if (err instanceof Error) {
-        setError(`Analysis failed: ${err.message}`);
+        setError(t.analyze.failedMessage(err.message));
       } else {
-        setError("Analysis failed.");
+        setError(t.analyze.failedGeneric);
       }
     } finally {
       setBusy(false);
@@ -56,50 +62,51 @@ export function AnalyzeCard({ jobId, onAnalyzed }: Props) {
       aria-labelledby="analyze-heading"
       className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6"
     >
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-fuchsia-500/10 text-sm font-semibold text-fuchsia-300 ring-1 ring-fuchsia-500/30">
             2
           </span>
           <h2 id="analyze-heading" className="text-lg font-medium text-neutral-100">
-            Analyze video
+            {t.analyze.heading}
           </h2>
         </div>
         <button
           type="button"
           onClick={run}
           disabled={busy}
-          className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
+          className="w-fit rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
           {busy ? (
             <span className="inline-flex items-center gap-2">
-              <Spinner /> Analyzing...
+              <Spinner /> {t.analyze.analyzing}
             </span>
           ) : result ? (
-            "Re-run analysis"
+            t.analyze.rerun
           ) : (
-            "Analyze video"
+            t.analyze.run
           )}
         </button>
       </div>
 
       <p className="text-xs text-neutral-500">
-        Deterministic, non-LLM: extracts metadata, samples representative
-        frames, and segments scenes. Job{" "}
-        <span className="font-mono text-neutral-300">{jobId}</span>.
+        {t.analyze.descriptionBeforeJob}{" "}
+        <span className="font-mono text-neutral-300">{jobId}</span>
+        {t.analyze.descriptionAfterJob}
       </p>
 
       {!result && !busy && !error && (
         <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
-          Click <span className="text-neutral-300">Analyze video</span> to
-          extract frames + scenes. This unlocks step 3.
+          {t.analyze.emptyBeforeButton}{" "}
+          <span className="text-neutral-300">{t.analyze.emptyButton}</span>{" "}
+          {t.analyze.emptyAfterButton}
         </p>
       )}
 
       {busy && !result && (
         <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
           <span className="inline-flex items-center gap-2">
-            <Spinner /> Sampling frames and detecting scene boundaries...
+            <Spinner /> {t.analyze.busy}
           </span>
         </div>
       )}
@@ -134,18 +141,22 @@ function Spinner() {
 }
 
 function Metadata({ result }: { result: VideoAnalysis }) {
+  const { locale, t } = useLanguage();
   const items: Array<[string, string]> = [
-    ["Duration", formatSeconds(result.duration_seconds)],
-    ["FPS", result.fps.toFixed(2)],
-    ["Resolution", `${result.width} × ${result.height}`],
-    ["Total frames", result.total_frames.toLocaleString()],
-    ["File size", formatBytes(result.file_size_bytes)],
-    ["Source", result.source_video_path],
+    [t.analyze.duration, formatSeconds(result.duration_seconds, locale)],
+    [t.analyze.fps, result.fps.toFixed(2)],
+    [t.analyze.resolution, `${result.width} × ${result.height}`],
+    [
+      t.analyze.totalFrames,
+      result.total_frames.toLocaleString(localeToDateLocale(locale)),
+    ],
+    [t.analyze.fileSize, formatBytes(result.file_size_bytes)],
+    [t.analyze.source, result.source_video_path],
   ];
   return (
     <div>
       <h3 className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500">
-        Metadata
+        {t.analyze.metadata}
       </h3>
       <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[max-content_1fr]">
         {items.map(([k, v]) => (
@@ -160,20 +171,22 @@ function Metadata({ result }: { result: VideoAnalysis }) {
 }
 
 function Frames({ result }: { result: VideoAnalysis }) {
+  const { t } = useLanguage();
+
   if (result.frames.length === 0) {
     return (
       <div>
         <h3 className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Frames
+          {t.analyze.frames}
         </h3>
-        <p className="text-sm text-neutral-500">No frames extracted.</p>
+        <p className="text-sm text-neutral-500">{t.analyze.noFrames}</p>
       </div>
     );
   }
   return (
     <div>
       <h3 className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500">
-        Frames ({result.frames.length})
+        {t.analyze.frames} ({result.frames.length})
       </h3>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {result.frames.map((f) => (
@@ -184,12 +197,12 @@ function Frames({ result }: { result: VideoAnalysis }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={api.staticUrl(f.path)}
-              alt={`Frame at ${f.timestamp_seconds.toFixed(1)}s`}
+              alt={t.analyze.frameAlt(f.timestamp_seconds.toFixed(1))}
               className="aspect-video w-full object-cover"
               loading="lazy"
             />
             <div className="px-2 py-1 text-xs text-neutral-400">
-              t = {f.timestamp_seconds.toFixed(1)}s
+              {t.analyze.frameTimestamp(f.timestamp_seconds.toFixed(1))}
             </div>
           </li>
         ))}
@@ -199,15 +212,18 @@ function Frames({ result }: { result: VideoAnalysis }) {
 }
 
 function Scenes({ result }: { result: VideoAnalysis }) {
+  const { t } = useLanguage();
   const total = result.duration_seconds || 1;
   return (
     <div>
       <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-neutral-500">
-        <span>Scenes ({result.scenes.length})</span>
+        <span>
+          {t.analyze.scenes} ({result.scenes.length})
+        </span>
         <span className="rounded bg-neutral-800 px-2 py-0.5 text-[10px] font-normal normal-case tracking-normal text-neutral-300">
           {result.scene_detection_method === "pyscenedetect"
             ? "PySceneDetect"
-            : "Time-based fallback"}
+            : t.analyze.timeBasedFallback}
         </span>
       </h3>
 
@@ -243,10 +259,15 @@ function Scenes({ result }: { result: VideoAnalysis }) {
           >
             <span className="w-24 text-neutral-500">{s.id}</span>
             <span>
-              {s.start_seconds.toFixed(2)}s → {s.end_seconds.toFixed(2)}s
+              {t.analyze.sceneRange(
+                s.start_seconds.toFixed(2),
+                s.end_seconds.toFixed(2)
+              )}
             </span>
             <span className="text-neutral-500">
-              ({(s.end_seconds - s.start_seconds).toFixed(2)}s)
+              {t.analyze.sceneDuration(
+                (s.end_seconds - s.start_seconds).toFixed(2)
+              )}
             </span>
           </li>
         ))}

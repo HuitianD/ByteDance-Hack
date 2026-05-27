@@ -24,11 +24,19 @@ import { normalizeLayout } from "./util/layout";
 export type StoryboardProps = {
   storyboard: StoryboardType;
   mediaAssets?: MediaAssets | null;
+  /**
+   * When true, render the always-on lower-third title + scene counter
+   * strip. Off by default — the strip is useful for debugging the
+   * pipeline but makes the final mp4 read like a dev tool, not an ad.
+   * The web UI's storyboard panel already shows the same information.
+   */
+  debugOverlay?: boolean;
 };
 
 export const StoryboardComposition: React.FC<StoryboardProps> = ({
   storyboard,
   mediaAssets,
+  debugOverlay = false,
 }) => {
   const { fps } = useVideoConfig();
 
@@ -53,8 +61,7 @@ export const StoryboardComposition: React.FC<StoryboardProps> = ({
           })}
         </Series>
 
-        {/* Lower-third metadata strip; tiny, observable, doesn't fight content. */}
-        <MetadataStrip storyboard={storyboard} />
+        {debugOverlay && <MetadataStrip storyboard={storyboard} />}
       </AbsoluteFill>
     </MediaAssetsProvider>
   );
