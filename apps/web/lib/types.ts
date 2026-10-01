@@ -50,30 +50,12 @@ export interface VideoAnalysis {
   created_at: string;
 }
 
-export interface EditingAtom {
-  kind: string;
-  duration_seconds: number;
-  notes?: string | null;
-}
-
-export interface StructureCard {
-  origin?: string;
-  id: string;
-  pattern_name: string;
-  summary: string;
-  hook_type: string;
-  narrative_flow: string;
-  visual_style: string;
-  editing_atoms: EditingAtom[];
-  reusable_rules: string[];
-  source_video_job_id: string;
-  source_segments: string[];
-  /** ISO 8601 UTC timestamp. */
-  created_at: string;
-}
-
-export type { StoryboardSceneWire as StoryboardScene, StoryboardWire as Storyboard } from "@viralcraft/schemas";
-
+export type {
+  EditingAtomWire as EditingAtom,
+  StructureCardWire as StructureCard,
+  StoryboardSceneWire as StoryboardScene,
+  StoryboardWire as Storyboard,
+} from "@viralcraft/schemas";
 
 export interface StoryboardGenerateRequest {
   user_prompt: string;

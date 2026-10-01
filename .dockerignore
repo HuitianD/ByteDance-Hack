@@ -14,3 +14,4 @@ apps/api/demo/*.mp4
 VIRALCRAFT_INTERVIEW_KNOWLEDGE_BASE.md
 
 !apps/web/public/examples/*.mp4
+!apps/web/public/references/*.mp4

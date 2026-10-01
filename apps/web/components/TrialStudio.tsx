@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { ApiError } from "@/lib/api";
 import {
+  ReferenceEvidenceDetails,
+  referenceOriginLabel,
+} from "@/components/ReferenceEvidenceDetails";
+import {
   trial,
   mediaUrl,
   type Workspace,
@@ -257,37 +261,35 @@ export function TrialStudio() {
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {cards.map((c) => (
-            <label
+            <article
               key={c.id}
-              className={`cursor-pointer rounded-xl border p-4 ${selected.includes(c.id) ? "border-fuchsia-400 bg-fuchsia-500/10" : "border-neutral-800"}`}
+              className={`min-w-0 rounded-xl border p-4 ${selected.includes(c.id) ? "border-fuchsia-400 bg-fuchsia-500/10" : "border-neutral-800"}`}
             >
-              <input
-                type="checkbox"
-                checked={selected.includes(c.id)}
-                disabled={
-                  busy || (!selected.includes(c.id) && selected.length >= 3)
-                }
-                onChange={() =>
-                  setSelected((s) =>
-                    s.includes(c.id)
-                      ? s.filter((x) => x !== c.id)
-                      : [...s, c.id],
-                  )
-                }
-              />
-              <span className="ml-2 font-medium">{c.pattern_name}</span>
+              <label className="flex cursor-pointer items-start gap-2">
+                <input
+                  className="mt-1"
+                  type="checkbox"
+                  checked={selected.includes(c.id)}
+                  disabled={
+                    busy || (!selected.includes(c.id) && selected.length >= 3)
+                  }
+                  onChange={() =>
+                    setSelected((s) =>
+                      s.includes(c.id)
+                        ? s.filter((x) => x !== c.id)
+                        : [...s, c.id],
+                    )
+                  }
+                />
+                <span className="font-medium">{c.pattern_name}</span>
+              </label>
               <p className="mt-2 text-xs">{c.summary}</p>
               <div className="mt-3 text-xs text-fuchsia-300">
                 {c.editing_atoms.map((a) => a.kind).join(" → ")}
               </div>
-              <p className="mt-2 text-xs">
-                {c.origin === "curated"
-                  ? t("Human-authored starter", "人工整理的示例模板")
-                  : c.origin === "mock"
-                    ? t("Mock extraction", "Mock 提取")
-                    : t("Metadata-based extraction", "基于元信息提取")}
-              </p>
-            </label>
+              <p className="mt-2 text-xs">{referenceOriginLabel(c, zh)}</p>
+              <ReferenceEvidenceDetails card={c} />
+            </article>
           ))}
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -394,8 +396,8 @@ export function TrialStudio() {
             </div>
             <p className="mt-3 text-xs">
               {t(
-                "Current analysis measures timing and scene boundaries. It does not perform visual semantic recognition.",
-                "当前分析提供时序与分镜边界，不执行画面语义识别。",
+                "Basic analysis detects scene boundaries and timing. Reference-card extraction separately analyzes keyframes; review the results before reuse.",
+                "基础分析检测分镜与时长；提取参考卡会另行分析关键帧，结果需核对。",
               )}
             </p>
             {upload.analysis && (

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "purpose": "Controlled examples for validating reference analysis, not evidence of virality, ad performance, or user adoption.",
+  "references": [
+    {
+      "slug": "showcase",
+      "title": "咖啡展示与邀请 · 自制演示",
+      "provenance": [
+        "Authored demonstration using the existing generated cup clip and Remotion captions.",
+        "The source clip repeats; presentation moves from a product opening to details and an invitation.",
+        "No new video-generation request was made for this library."
+      ]
+    },
+    {
+      "slug": "question",
+      "title": "问题到回应 · 自制演示",
+      "provenance": [
+        "Authored demonstration using the existing generated cup clip and Remotion captions.",
+        "The source clip repeats; differences in narrative come from caption order and timing.",
+        "No new video-generation request was made for this library."
+      ]
+    },
+    {
+      "slug": "list",
+      "title": "编号清单推进 · 自制演示",
+      "provenance": [
+        "Authored demonstration using the existing generated cup clip and Remotion captions.",
+        "The source clip repeats; differences in narrative come from caption order and timing.",
+        "No new video-generation request was made for this library."
+      ]
+    }
+  ],
+  "external_candidates": [
+    {
+      "title": "Macro Espresso Process",
+      "url": "https://commons.wikimedia.org/wiki/File:Macro_Espresso_Process.webm",
+      "author": "Scott Schiller",
+      "license": "CC BY 2.0",
+      "status": "pending_download",
+      "reason": "Original and official transcodes returned HTTP 429; no video was analyzed."
+    },
+    {
+      "title": "Hario Syphon Technica",
+      "url": "https://commons.wikimedia.org/wiki/File:How_to_brew_Coffee_using_the_laws_of_physics_-_with_the_Hario_Syphon_Technica.webm",
+      "author": "Coffee Circle",
+      "license": "CC BY 3.0",
+      "status": "pending_download",
+      "reason": "Original and official transcodes returned HTTP 429; no video was analyzed."
+    }
+  ]
+}

@@ -8,7 +8,17 @@ swappable without touching analysis / generation logic.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Mapping
+from dataclasses import dataclass
+from typing import Any, Mapping, Sequence
+
+
+@dataclass(frozen=True)
+class LLMImage:
+    """A prepared JPEG plus its source evidence coordinates, never a local path."""
+
+    index: int
+    timestamp_seconds: float
+    data_url: str
 
 
 class LLMError(RuntimeError):
@@ -61,3 +71,16 @@ class LLMClient(ABC):
     async def aclose(self) -> None:
         """Release any underlying resources (e.g. HTTP client)."""
         return None
+
+    async def generate_json_with_images(
+        self,
+        prompt: str,
+        *,
+        images: Sequence[LLMImage],
+        schema_hint: Mapping[str, Any] | None = None,
+        system: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict[str, Any]:
+        """Analyze actual images or fail explicitly; never substitute text-only work."""
+        raise LLMError(f"Provider '{self.provider_name}' does not support image input")

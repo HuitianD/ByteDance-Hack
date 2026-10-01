@@ -1,0 +1,76 @@
+{
+  "id": "8b4e094c-94f9-47a0-8fea-0add83df86bd",
+  "job_id": "4767f58a-e822-47e8-8f2d-ec57663632ab",
+  "source_video_path": "/references/question.mp4",
+  "duration_seconds": 15.0,
+  "fps": 30.0,
+  "width": 720,
+  "height": 1280,
+  "total_frames": 450,
+  "file_size_bytes": 4441718,
+  "frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "path": "/references/question/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "path": "/references/question/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "path": "/references/question/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "path": "/references/question/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "path": "/references/question/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "path": "/references/question/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "path": "/references/question/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "path": "/references/question/frame_007.jpg"
+    },
+    {
+      "index": 8,
+      "timestamp_seconds": 14.966666666666667,
+      "path": "/references/question/frame_008.jpg"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene_000",
+      "start_seconds": 0.0,
+      "end_seconds": 10.0,
+      "role": null,
+      "thumbnail_path": null
+    },
+    {
+      "id": "scene_001",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "role": null,
+      "thumbnail_path": null
+    }
+  ],
+  "scene_detection_method": "pyscenedetect",
+  "created_at": "2026-10-01T00:47:54.196723Z"
+}

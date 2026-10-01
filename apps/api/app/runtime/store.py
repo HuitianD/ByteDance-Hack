@@ -137,6 +137,17 @@ class Store:
             json.loads(r["body"]) for r in rows if kind is None or r["kind"] == kind
         ]
 
+    def card_index_owner(self, owner: str, rid: str) -> str:
+        """Derive search visibility from storage, not a card's descriptive origin."""
+        with self.connection() as db:
+            row = db.execute(
+                "SELECT owner,public FROM resources WHERE id=? AND kind='card' AND (owner=? OR public=1)",
+                (rid, owner),
+            ).fetchone()
+        if not row:
+            raise StoreError("Resource not found.", 404)
+        return "__public__" if row["public"] else row["owner"]
+
     @staticmethod
     def _consume(db, owner, name, limit, amount=1):
         row = db.execute(

@@ -1,0 +1,28 @@
+{
+  "commit": "54b41fd",
+  "source": "git archive into empty directory",
+  "host_dependencies_mounted": false,
+  "build": "passed",
+  "http_health_home_examples": "passed",
+  "preserved_example_hashes": [
+    "chinese.mp4",
+    "english.mp4",
+    "live.mp4"
+  ],
+  "source_fixture": "Regenerated inside Linux container; encoder-dependent bytes differ from macOS",
+  "smoke_network": "none",
+  "smoke_steps": [
+    "invitation",
+    "sample import",
+    "queued mock planning",
+    "caption editing",
+    "versioned save",
+    "real Remotion MP4",
+    "authenticated download"
+  ],
+  "smoke_render_ms": 46281,
+  "smoke_video_bytes": 2094551,
+  "fix": "Explicit preinstalled Chromium executable prevents working-directory-dependent runtime download",
+  "architecture": "Linux arm64 via Docker Desktop",
+  "external_model_calls": 0
+}

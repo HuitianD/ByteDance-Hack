@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
+import hashlib
 import uuid
 from app.core.config import Settings
 from app.core.errors import public_error
@@ -101,7 +102,9 @@ class Worker:
             a = await self.analyze(owner, p["resource_id"])
             client = get_llm_client(self.settings)
             try:
-                card = await extract_structure_card(a, client)
+                card = await extract_structure_card(
+                    a, client, data_dir=d, model_name=self.settings.seed_model
+                )
             finally:
                 self.store.event(
                     owner,
@@ -113,6 +116,31 @@ class Worker:
                     },
                 )
                 await client.aclose()
+            # Source URLs are minted from owned resources, never from model output.
+            from app.schemas.structure_card import ReferenceSource
+
+            upload = self.store.resource(owner, a.job_id, "upload")
+            card.source = ReferenceSource(
+                kind="user_upload",
+                title=upload["original_filename"],
+                media_url=f"/api/media/{a.job_id}",
+                sha256=hashlib.sha256(
+                    (d / upload["saved_path"]).read_bytes()
+                ).hexdigest(),
+                original_duration_seconds=a.duration_seconds,
+                excerpt_end_seconds=a.duration_seconds,
+            )
+            urls = {
+                round(f["timestamp_seconds"], 4): f["url"]
+                for f in upload.get("frames", [])
+            }
+            for frame in card.evidence_frames:
+                frame.url = urls.get(round(frame.timestamp_seconds, 4))
+            # Each extraction has an independent ID. Keep the old compatibility
+            # snapshot, and retain every evidence card for audit/review.
+            archive = d / "knowledge_base" / a.job_id / "cards" / f"{card.id}.json"
+            archive.parent.mkdir(parents=True, exist_ok=True)
+            archive.write_text(card.model_dump_json(indent=2))
             path = d / "knowledge_base" / a.job_id / "structure_card.json"
             path.write_text(card.model_dump_json(indent=2))
             self.store.put_resource(owner, "card", card.model_dump(mode="json"))

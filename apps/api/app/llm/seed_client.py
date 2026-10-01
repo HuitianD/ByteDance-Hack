@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 import httpx
 
-from .base import LLMClient, LLMConfigError, LLMError
+from .base import LLMClient, LLMConfigError, LLMError, LLMImage
 
 
 #: Default base URL when SEED_API_BASE_URL is not set.
@@ -119,6 +119,52 @@ class SeedClient(LLMClient):
             response_format=None,
         )
         data = await self._post_chat(payload)
+        return self._parse_json(data)
+
+    async def generate_json_with_images(
+        self,
+        prompt: str,
+        *,
+        images: Sequence[LLMImage],
+        schema_hint: Mapping[str, Any] | None = None,
+        system: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict[str, Any]:
+        """Send JPEG bytes through Ark's multimodal chat content, with timestamps."""
+        if not images:
+            raise LLMError("Visual analysis requires at least one image")
+        _ = schema_hint
+        payload = self._build_payload(
+            prompt=prompt,
+            system=system,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            response_format=None,
+        )
+        content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
+        for image in images:
+            if not image.data_url.startswith("data:image/jpeg;base64,"):
+                raise LLMError("Visual input must be a prepared JPEG data URL")
+            content.extend(
+                [
+                    {
+                        "type": "text",
+                        "text": (
+                            f"Frame index {image.index}; timestamp_seconds "
+                            f"{image.timestamp_seconds:.6f}."
+                        ),
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": image.data_url, "detail": "high"},
+                    },
+                ]
+            )
+        payload["messages"][-1]["content"] = content
+        return self._parse_json(await self._post_chat(payload))
+
+    def _parse_json(self, data: Any) -> dict[str, Any]:
         text = _strip_code_fences(self._extract_text(data))
         try:
             parsed = json.loads(text)
@@ -167,6 +213,7 @@ class SeedClient(LLMClient):
     async def _post_chat(self, payload: Mapping[str, Any]) -> Any:
         """Send one request; callers explicitly decide whether to retry."""
         path = "/chat/completions"
+        self.last_usage = {}
         try:
             resp = await self._http.post(path, json=dict(payload))
         except httpx.HTTPError as exc:

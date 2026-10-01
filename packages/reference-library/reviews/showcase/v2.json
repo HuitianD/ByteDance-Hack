@@ -1,0 +1,222 @@
+{
+  "id": "a5806cd5-1acf-490c-b3b3-d4f3b1d1e274",
+  "pattern_name": "产品展示 → 感官细节 → 到店邀请",
+  "summary": "抽帧中重复出现同一只咖啡杯，文案依次表达慢享咖啡、杯身与热气、周末到店邀请；字幕从居中切换到上方，再回到居中。可迁移的是信息顺序与布局分工。",
+  "hook_type": "产品画面配合慢享主题文案",
+  "narrative_flow": "产品与氛围 → 感官细节 → 邀请行动",
+  "visual_style": "竖屏、暖色中性背景、浅色杯子；白色大字居中或置顶，结尾画面比中段暗。",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 5.0,
+      "notes": "建议复用时长，非抽帧测得的字幕准确起止：先展示产品与主题。"
+    },
+    {
+      "kind": "detail",
+      "duration_seconds": 5.0,
+      "notes": "建议复用时长：具体描述用户提供的可见细节，不添加功效。"
+    },
+    {
+      "kind": "invitation",
+      "duration_seconds": 5.0,
+      "notes": "建议复用时长：以一个明确邀请结束。"
+    }
+  ],
+  "reusable_rules": [
+    "先用产品画面和一句主题文案建立氛围；字幕准确出现时机由创作者编辑，不把稀疏抽帧间隔当作空白时长。",
+    "将文案组织为主题、可见细节、单一行动邀请；可先尝试三个等长段落，再按实际阅读速度调整。",
+    "主题与邀请使用居中字幕，细节使用上方字幕；切换布局时检查文字是否遮挡目标产品。",
+    "结尾可以使用较暗的画面承载高对比邀请文字；这是可选包装建议，不代表已验证的转化提升。"
+  ],
+  "source_video_job_id": "bbd3c71b-0652-4244-b71c-43a224377f15",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:47:40.713707Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 2,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "咖啡展示与邀请 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/showcase.mp4",
+    "sha256": "3579339a4d2811491d1cbdf3da408079bffe385096e4f501395adec987403174",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; presentation moves from a product opening to details and an invitation.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/showcase/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/showcase/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/showcase/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/showcase/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/showcase/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/showcase/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/showcase/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/showcase/frame_007.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 2.0,
+      "frame_indices": [
+        0,
+        1
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "0秒帧可见居中的浅色咖啡杯，没有可读字幕；2秒帧出现“一杯咖啡／慢慢享受”的居中文字。无法据此确定字幕何时开始。"
+    },
+    {
+      "id": "obs_2",
+      "aspect": "pacing",
+      "start_seconds": 2.0,
+      "end_seconds": 6.0,
+      "frame_indices": [
+        1,
+        2,
+        3
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "2秒与4秒帧显示相同的居中主题文字；6秒帧显示上方的“温润杯身 升腾热气”。这是采样点之间的文案变化，不能证明中间持续状态或切换的准确时刻。"
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 6.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        3,
+        4
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "6秒与8秒帧都显示上方的杯身与热气描述；杯子及浅色背景仍然可见。图中可见蒸汽形状，不能仅凭静帧断言其连续运动。"
+    },
+    {
+      "id": "obs_4",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 14.0,
+      "frame_indices": [
+        5,
+        6,
+        7
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "10秒帧较暗且没有可读字幕；12秒和14秒帧在杯子上方居中显示“周末来／Craft 坐坐”及短横线。中段置顶、结尾居中的布局差异可以直接比较。"
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "先用产品画面和一句主题文案建立氛围；字幕准确出现时机由创作者编辑，不把稀疏抽帧间隔当作空白时长。",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "将文案组织为主题、可见细节、单一行动邀请；可先尝试三个等长段落，再按实际阅读速度调整。",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2",
+        "obs_3",
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "主题与邀请使用居中字幕，细节使用上方字幕；切换布局时检查文字是否遮挡目标产品。",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2",
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "结尾可以使用较暗的画面承载高对比邀请文字；这是可选包装建议，不代表已验证的转化提升。",
+      "evidence_ids": [
+        "obs_4"
+      ]
+    }
+  ],
+  "applicability": [
+    "咖啡或其他外观可展示的商品短片；适合希望先建立氛围、再邀请到店的表达。",
+    "目标素材必须能支撑文案中的具体描述；此适用性仍待真实用户验证。"
+  ],
+  "material_requirements": [
+    "一条有足够时长的清晰产品视频，画面留有字幕空间。",
+    "商品可见细节与用户确认的行动信息；没有热气画面时不要复用热气描述。"
+  ],
+  "limitations": [
+    "仅根据8张带时间戳的静帧分析，未分析音频、音乐卡点或完整连续动作。",
+    "不能从2秒采样间隔确认字幕准确时长或所有剪辑切点；editing_atoms时长为复用建议。",
+    "源片为自制演示并复用已有生成杯子片段，不是独立真实广告，也没有传播、留存或转化数据。",
+    "AI视觉复核已修正原模型的连续性、无字幕持续时长与声音推断；尚未获得真人审核。"
+  ],
+  "review": {
+    "status": "approved",
+    "method": "assistant_visual",
+    "reviewer": "Codex visual review",
+    "reviewed_at": "2026-10-01T00:48:34.137402Z",
+    "notes": "逐一核对8张模型输入帧；移除前两秒均无字幕、连续运动、静音、无切镜和准确字幕时长等超出静帧证据的结论。复用时长明确标为建议，保留原始模型输出。尚无真人复核。"
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 8,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

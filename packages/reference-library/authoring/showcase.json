@@ -1,0 +1,73 @@
+{
+  "kind": "self_authored_demo",
+  "authoring_method": "Manually authored Storyboard JSON rendered by the existing Remotion composition. No model generated this storyboard.",
+  "source_clip": "apps/web/public/references/source-cup.mp4",
+  "source_note": "Reuses the Seedance cup clip already generated for the local integration check. Rebuilding makes zero paid model calls.",
+  "analysis_boundary": "Authoring instructions are for offline rendering only and must not be supplied to the extraction model.",
+  "storyboard": {
+    "id": "97f4e28a-403c-5c56-9b2c-b3ff0d9ff69a",
+    "title": "产品展示：展示、细节、邀请",
+    "user_prompt": "Self-authored reference demo for studying observable caption, pacing and information-flow patterns. Fictional Craft brand; no performance claim.",
+    "target_duration_seconds": 15,
+    "actual_duration_seconds": 15,
+    "fps": 30,
+    "width": 720,
+    "height": 1280,
+    "scenes": [
+      {
+        "scene_id": "showcase_000",
+        "start_time": 0,
+        "end_time": 5,
+        "duration_seconds": 5,
+        "layout": "hook_title",
+        "text": "一杯咖啡 慢慢享受",
+        "visual_description": "Reuse the bundled generated coffee-cup clip with visible steam. This is an original fictional demonstration, not customer advertising footage.",
+        "animation": "fade-in",
+        "transition": "cut",
+        "asset_prompt": null,
+        "source_structure_card_id": null,
+        "source_editing_atoms": [],
+        "asset_strategy": "generated_video",
+        "generated_asset_id": "bundled-source-cup"
+      },
+      {
+        "scene_id": "showcase_001",
+        "start_time": 5,
+        "end_time": 10,
+        "duration_seconds": 5,
+        "layout": "text_over_media",
+        "text": "温润杯身 升腾热气",
+        "visual_description": "Reuse the bundled generated coffee-cup clip with visible steam. This is an original fictional demonstration, not customer advertising footage.",
+        "animation": "fade-in",
+        "transition": "cut",
+        "asset_prompt": null,
+        "source_structure_card_id": null,
+        "source_editing_atoms": [],
+        "asset_strategy": "generated_video",
+        "generated_asset_id": "bundled-source-cup"
+      },
+      {
+        "scene_id": "showcase_002",
+        "start_time": 10,
+        "end_time": 15,
+        "duration_seconds": 5,
+        "layout": "cta_card",
+        "text": "周末来 Craft 坐坐",
+        "visual_description": "Reuse the bundled generated coffee-cup clip with visible steam. This is an original fictional demonstration, not customer advertising footage.",
+        "animation": "fade-in",
+        "transition": "cut",
+        "asset_prompt": null,
+        "source_structure_card_id": null,
+        "source_editing_atoms": [],
+        "asset_strategy": "generated_video",
+        "generated_asset_id": "bundled-source-cup"
+      }
+    ],
+    "source_structure_card_ids": [],
+    "created_at": "2026-10-01T00:44:57.711332+00:00",
+    "version": 1,
+    "target_media_job_id": null,
+    "audio_asset_id": null,
+    "generation_mode": "legacy"
+  }
+}

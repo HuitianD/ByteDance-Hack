@@ -1,0 +1,257 @@
+{
+  "id": "98a2cc76-0699-4b43-8566-bc63107c0fde",
+  "pattern_name": "Warm Cup Slow-Pitch Text Sequence",
+  "summary": "A vertical, close-up ceramic cup of dark coffee is held as the central visual while steam rises, with white Chinese text blocks appearing in three sequential emotional positions and the scene dimming toward the end. The method transfers as a low-motion, text-over-footage structure for relaxation- or invitation-style posts.",
+  "hook_type": "Product still with a question-style text overlay",
+  "narrative_flow": "Unknown; visual stills show a central cup with three sequential white text blocks and a darker closing exposure.",
+  "visual_style": "Vertical portrait framing, warm beige-to-dark radial gradient background, centered ceramic cup with light beige glaze and brown rim/base, dark brown liquid, soft steam, and white sans-serif Chinese text blocks.",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 4.0,
+      "notes": "Cup still with overlaid question text; reuse as a calm hook with brief on-screen greeting."
+    },
+    {
+      "kind": "text_block",
+      "duration_seconds": 4.0,
+      "notes": "Text block placed near the top above the cup; reuse to state the message without cutting away from the product."
+    },
+    {
+      "kind": "closing",
+      "duration_seconds": 5.0,
+      "notes": "Dimmer exposure with invitation-style text; reuse as a soft fade-to-dim ending."
+    }
+  ],
+  "reusable_rules": [
+    "Open with a centered product still and a short restful question overlay rather than fast motion.",
+    "After the hook, replace the text while keeping the product in the same centered position so the message layer carries the progression.",
+    "For the ending, dim the exposure and place an invitation-style text block over the product to signal a calm close.",
+    "Use rising steam as subtle natural motion in an otherwise static product shot to maintain a relaxed pace.",
+    "Add a short thin white underline beneath a centered closing text block for a refined text layout."
+  ],
+  "source_video_job_id": "4767f58a-e822-47e8-8f2d-ec57663632ab",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:48:18.809303Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 1,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "问题到回应 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/question.mp4",
+    "sha256": "720c9703f89c0a2f30cd33d28530ed44534af6b16e0c992587a19575e274cbf7",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; differences in narrative come from caption order and timing.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/question/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/question/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/question/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/question/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/question/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/question/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/question/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/question/frame_007.jpg"
+    },
+    {
+      "index": 8,
+      "timestamp_seconds": 14.966666666666667,
+      "url": "/references/question/frame_008.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 4.0,
+      "frame_indices": [
+        0,
+        1,
+        2
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "A centered light beige ceramic cup with brown rim and base holds dark brown liquid on a warm gradient background; white text 忙完了？歇一下 overlays the cup at frames 1 and 2."
+    },
+    {
+      "id": "obs_2",
+      "aspect": "information_flow",
+      "start_seconds": 4.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        2,
+        3,
+        4
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "The same cup remains centered; frames 3 and 4 show white text 留一点 咖啡 时间 near the top of the frame."
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "The exposure darkens toward a warm near-black background; frames 6, 7 and 8 show white text 周末来 Craft 坐坐 over the cup."
+    },
+    {
+      "id": "obs_4",
+      "aspect": "pacing",
+      "start_seconds": 0.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        1,
+        2,
+        4,
+        7
+      ],
+      "source_segments": [
+        "scene_000",
+        "scene_001"
+      ],
+      "observation": "Wispy light steam rises above the liquid across multiple frames while the cup stays centered; no rapid motion or action is visible."
+    },
+    {
+      "id": "obs_5",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "The closing text block is white sans-serif, centered over the cup, with a short thin horizontal white line beneath it."
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "Open with a centered product still and a short restful question overlay rather than fast motion.",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "After the hook, replace the text while keeping the product in the same centered position so the message layer carries the progression.",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "For the ending, dim the exposure and place an invitation-style text block over the product to signal a calm close.",
+      "evidence_ids": [
+        "obs_3"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "Use rising steam as subtle natural motion in an otherwise static product shot to maintain a relaxed pace.",
+      "evidence_ids": [
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_5",
+      "instruction": "Add a short thin white underline beneath a centered closing text block for a refined text layout.",
+      "evidence_ids": [
+        "obs_5"
+      ]
+    }
+  ],
+  "applicability": [
+    "Café or specialty-drink brand posts",
+    "Slow, calm lifestyle content",
+    "Short invitation or closing messages over product footage",
+    "Vertical mobile social stills with minimal motion"
+  ],
+  "material_requirements": [
+    "A centered shot of a ceramic cup with hot dark liquid",
+    "A warm beige-to-dark gradient backdrop",
+    "Rising steam visible in frame",
+    "Three blocks of short white sans-serif Chinese text"
+  ],
+  "limitations": [
+    "No spoken or musical soundtrack can be inferred.",
+    "Exact subtitle timing and transitions between text blocks are not established by stills.",
+    "Product sales performance, audience response, or review approval cannot be determined.",
+    "The source shows only one product and no alternative action sequences.",
+    "Based on sampled still frames; continuous motion and exact subtitle timing are not verified.",
+    "Audio, speech, music beats and performance metrics were not analyzed."
+  ],
+  "review": {
+    "status": "pending",
+    "method": "none",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 9,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

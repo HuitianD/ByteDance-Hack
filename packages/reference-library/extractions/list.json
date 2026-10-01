@@ -1,0 +1,231 @@
+{
+  "id": "eedd2829-3194-4f2a-ac59-11e9ad502ee9",
+  "pattern_name": "Quiet vertical coffee meditation with stacked serif titles",
+  "summary": "A single centered ceramic cup on a warm neutral surface carries all information through alternating title and numbered step overlays, followed by a darkening closing frame. The transferable method is one calm hero object, minimal warm background, white serif text, numbered steps, and a fade-to-dark invitation.",
+  "hook_type": "Centered still-life cup with stacked title over the rim",
+  "narrative_flow": "Title card, then numbered step overlays alternating with unobstructed cup shots, then fade to dark closing invitation",
+  "visual_style": "Vertical 720x1280 frame, warm beige gradient backdrop, centered matte off-white ceramic cup with brown coffee, soft diffused shadow, muted low-saturation palette, faint rising steam in later frames",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 2.0,
+      "notes": "0.0-2.0s: centered cup cut to title overlay; reuse as a calm brand-open before listing points"
+    },
+    {
+      "kind": "body",
+      "duration_seconds": 10.0,
+      "notes": "2.0-12.0s: numbered step text alternates positions above/below/over the cup; reuse short numbered steps on a static hero shot"
+    },
+    {
+      "kind": "closing",
+      "duration_seconds": 3.0,
+      "notes": "12.0-15.0s: frame darkens to near-black with stacked invitation; reuse as soft end card"
+    }
+  ],
+  "reusable_rules": [
+    "Open on one centered hero object against a warm neutral gradient, then place the program title in stacked white serif letters over the object to establish the calm tone before any steps.",
+    "Present each step as a short numbered phrase, moving its position from top to bottom to center so the hero object remains visible between steps.",
+    "Dim the entire frame toward black for the final invitation and repeat the same stacked serif layout and thin underline used for the opening title.",
+    "Add faint rising steam in later frames to signal a hot drink without introducing extra props or text."
+  ],
+  "source_video_job_id": "e8496c8b-3af0-451c-8814-f99976112e2e",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:49:31.561892Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 1,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "编号清单推进 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/list.mp4",
+    "sha256": "8c99cef3abb78ec960556dfd15e83c16d4a53ca49ba9cfe6ea0c1313b7254802",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; differences in narrative come from caption order and timing.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/list/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/list/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/list/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/list/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/list/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/list/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/list/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/list/frame_007.jpg"
+    },
+    {
+      "index": 8,
+      "timestamp_seconds": 14.966666666666667,
+      "url": "/references/list/frame_008.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 2.0,
+      "frame_indices": [
+        0,
+        1
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "A centered off-white ceramic cup filled with brown coffee sits on a warm beige gradient; at 2.0s bold white serif text '咖啡 小计划' stacks over the cup rim, underlined by a thin horizontal rule."
+    },
+    {
+      "id": "obs_2",
+      "aspect": "pacing",
+      "start_seconds": 2.0,
+      "end_seconds": 6.0,
+      "frame_indices": [
+        1,
+        2,
+        3
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "After the title, the next overlay '01 选喜欢的杯子' appears at the top of the frame at 4.0s, then disappears at 6.0s leaving the unobstructed cup."
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 6.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        3,
+        4,
+        5
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "Numbered steps progress: '02 留一点安静时间' sits at lower-left at 8.0s, then '03 慢慢享受这一杯' overlaps the cup rim at 10.0s; faint steam rises above the rim."
+    },
+    {
+      "id": "obs_4",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_000",
+        "scene_001"
+      ],
+      "observation": "The frame darkens progressively after 10.0s; at 14.0s and 14.97s stacked white serif text '周末来 Craft 坐坐' with a thin underline sits on the near-black frame over the darkened cup."
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "Open on one centered hero object against a warm neutral gradient, then place the program title in stacked white serif letters over the object to establish the calm tone before any steps.",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "Present each step as a short numbered phrase, moving its position from top to bottom to center so the hero object remains visible between steps.",
+      "evidence_ids": [
+        "obs_2",
+        "obs_3"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "Dim the entire frame toward black for the final invitation and repeat the same stacked serif layout and thin underline used for the opening title.",
+      "evidence_ids": [
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "Add faint rising steam in later frames to signal a hot drink without introducing extra props or text.",
+      "evidence_ids": [
+        "obs_3"
+      ]
+    }
+  ],
+  "applicability": [
+    "Café or craft drink brand short social videos",
+    "Slow-lifestyle and mindfulness-themed product clips",
+    "Minimalist still-life style recipe or ritual explainers"
+  ],
+  "material_requirements": [
+    "A single ceramic or plain cup with dark beverage",
+    "Warm beige seamless backdrop and soft diffused lighting",
+    "Vertical 720x1280 framing with centered composition",
+    "White serif Chinese font for titles and steps"
+  ],
+  "limitations": [
+    "Audio, music, voiceover and sound design cannot be inferred from stills",
+    "Exact text animation timing, transitions and steam motion are not established",
+    "Sales performance, audience reaction and commercial claims are not evidenced",
+    "The visible Chinese copy is source-specific and should not be reused verbatim for unrelated brands",
+    "Based on sampled still frames; continuous motion and exact subtitle timing are not verified.",
+    "Audio, speech, music beats and performance metrics were not analyzed."
+  ],
+  "review": {
+    "status": "pending",
+    "method": "none",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 9,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

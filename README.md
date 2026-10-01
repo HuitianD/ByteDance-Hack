@@ -42,6 +42,8 @@ LLM_PROVIDER=mock PYTHONPATH=apps/api apps/api/.venv/bin/uvicorn app.main:app --
 
 [本地运行、真实集成检查、部署和停机步骤](docs/MVP_RUNBOOK.md)
 
+[可回退发布基线与干净构建](docs/releases/BASELINE.md) · [参考方法库、证据与审核流程](packages/reference-library/README.md)
+
 ## 结构
 
 - `apps/api/app/runtime/`：SQLite 会话、资源归属、任务、额度、事件；单 worker 串行。
@@ -73,4 +75,8 @@ TEST_DATABASE_URL=postgresql://viralcraft:local-test-password@localhost:55432/vi
 
 ## 当前边界
 
-首版主要完成素材重剪与结构迁移。OpenCV / PySceneDetect 提取时间、边界和帧；当前结构学习没有视觉语义识别。公共库是人工整理模板，mock 是确定性草稿。2026-09-30 已在本机验证真实 Seed 文本规划、1024 维 embedding + pgvector SQL 检索，以及一个 Seedance 2.5 镜头进入 15 秒 MP4；首页第一条样片对应这次验证，另外两条仍为 mock 规划样片。云端部署、真实用户采用与商业结果尚未验证。详见 [本地验收记录](docs/MVP_RUNBOOK.md#8-真实链路验收记录2026-09-30)。
+首版主要完成素材重剪与结构迁移。OpenCV / PySceneDetect 提取时间、边界和帧；新的学习任务将最多12张真实JPEG与时间戳传给Seed视觉模型，提取开场、信息推进、采样节奏和字幕布局。静帧不支持音频、准确字幕时长或连续动作判断。旧元数据提取和mock路径保留并分别标记。
+
+公共库包括3张预置模板和3张自制演示的视觉提取卡；后者保存原始提取、观察引用、审核修订和样例视频，已完成AI视觉复核，**尚无真人审核**。三条参考片复用同一生成镜头，用于验证方法抽取，不代表真实爆款、广告效果或跨品类泛化。详见 [参考库验收记录](docs/releases/reference-library-2026-09-30.json)。
+
+2026-09-30 已在本机验证真实 Seed 文本规划、1024 维 embedding + pgvector SQL 检索，以及一个 Seedance 2.5 镜头进入 15 秒 MP4；首页第一条成片对应这次验证，另外两条仍为 mock 规划样片。云端部署、真实用户采用与商业结果尚未验证。详见 [本地验收记录](docs/MVP_RUNBOOK.md#8-真实链路验收记录2026-09-30)。

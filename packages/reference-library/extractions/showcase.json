@@ -1,0 +1,229 @@
+{
+  "id": "a5806cd5-1acf-490c-b3b3-d4f3b1d1e274",
+  "pattern_name": "Minimalist ambient product showcase with sequential centered caption reveals",
+  "summary": "A single ceramic cup of dark brown liquid on a plain neutral beige surface is held as the continuous visual across the full 15 second vertical video, with no cuts to alternate shots. White two-line Chinese serif captions are introduced sequentially at two different on-screen positions: first centered over the cup, then shifted to the upper area of the frame, while a subtle vignette darkens the edges of the final segment to draw viewer focus to closing invitation text. This structure transfers well to short, calm product promotions that prioritize a relaxed, cozy tone.",
+  "hook_type": "Silent static centered product shot, with no opening overlay text",
+  "narrative_flow": "Opens on a quiet, unobscured view of the product, sequentially reveals three short descriptive invitation captions over the same product shot, then closes with an invitation call to action over a darkened vignetted version of the product shot.",
+  "visual_style": "Vertical 720x1280 framing, warm low-contrast muted taupe/beige neutral background, soft diffused studio lighting, a cream matte ceramic cup with a light brown unglazed base and darker glazed rim holding dark brown liquid, subtle edge vignette darkening in the final segment, no additional props or visible clutter.",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 2.0,
+      "notes": "Opens on a text-free static product shot; can be reused to let viewers settle into a calm scene before overlaying text."
+    },
+    {
+      "kind": "product_text_overlay",
+      "duration_seconds": 4.0,
+      "notes": "Centered two-line serif text over the cup's midsection with a short divider line, held for the segment duration; can be reused to deliver mood-focused copy without breaking visual focus."
+    },
+    {
+      "kind": "second_text_overlay",
+      "duration_seconds": 4.0,
+      "notes": "Second two-line serif text placed in the upper frame, no divider line, paired with a slightly brighter vignette-free background; can be reused to highlight key product sensory details."
+    },
+    {
+      "kind": "closing",
+      "duration_seconds": 5.0,
+      "notes": "Vignette-darkened background frames the cup, with centered invitation text over the cup midsection and a short divider line; can be reused to land a soft call to action with reduced visual noise."
+    }
+  ],
+  "reusable_rules": [
+    "Lead with a text-free static shot of your core product for the first 2 seconds to establish a calm, unrushed tone before introducing any descriptive copy.",
+    "Hold each short two-line text overlay for roughly 4 seconds before swapping to the next caption, to avoid rushed pacing for a relaxed viewing experience.",
+    "Alternate caption placement between centered over the product and positioned in the upper frame across segments, to keep layout variety without cutting to new shots.",
+    "Apply a subtle dark edge vignette to the final segment to reduce visual noise and draw focus to your closing invitation call to action."
+  ],
+  "source_video_job_id": "bbd3c71b-0652-4244-b71c-43a224377f15",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:47:40.713707Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 1,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "咖啡展示与邀请 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/showcase.mp4",
+    "sha256": "3579339a4d2811491d1cbdf3da408079bffe385096e4f501395adec987403174",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; presentation moves from a product opening to details and an invitation.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/showcase/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/showcase/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/showcase/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/showcase/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/showcase/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/showcase/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/showcase/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/showcase/frame_007.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 2.0,
+      "frame_indices": [
+        0,
+        1
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "The opening shot at 0.0s shows a cream matte ceramic cup holding dark brown liquid, centered on a plain warm beige background with no visible text overlay. At 2.0s, faint rising steam is visible above the cup, and bold white two-line Chinese text reading '一杯咖啡 慢慢享受' (slowly enjoy a cup of coffee) appears across the cup's midsection, with a thin short horizontal divider line below the second line of text."
+    },
+    {
+      "id": "obs_2",
+      "aspect": "pacing",
+      "start_seconds": 2.0,
+      "end_seconds": 6.0,
+      "frame_indices": [
+        1,
+        2,
+        3
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "The centered '一杯咖啡 慢慢享受' text remains over the cup from 2.0s through 4.0s, while steam continues to rise from the liquid surface. At 6.0s, the prior text disappears, and new bold white two-line Chinese text reading '温润杯身 升腾热气' (warm cup body, rising hot steam) appears in the upper portion of the frame, no longer overlapping the cup's midsection, with no divider line present."
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 6.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        3,
+        4
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "The upper-placed '温润杯身 升腾热气' text remains over the cup through 8.0s, with visible swirling steam rising from the dark liquid. No additional text or cuts to alternate shots appear across this interval."
+    },
+    {
+      "id": "obs_4",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 14.0,
+      "frame_indices": [
+        5,
+        6,
+        7
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "At 10.0s, the upper descriptive text disappears, and the whole frame darkens into a subtle vignette effect with no visible text overlay. At 12.0s, bold white mixed Chinese and English two-line text reading '周末来 Craft 坐坐' (come to Craft and hang out this weekend) appears centered over the darkened cup, with a thin short horizontal divider line below the second line of text, and faint steam remains visible behind the overlay."
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "Lead with a text-free static shot of your core product for the first 2 seconds to establish a calm, unrushed tone before introducing any descriptive copy.",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "Hold each short two-line text overlay for roughly 4 seconds before swapping to the next caption, to avoid rushed pacing for a relaxed viewing experience.",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2",
+        "obs_3",
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "Alternate caption placement between centered over the product and positioned in the upper frame across segments, to keep layout variety without cutting to new shots.",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "Apply a subtle dark edge vignette to the final segment to reduce visual noise and draw focus to your closing invitation call to action.",
+      "evidence_ids": [
+        "obs_4"
+      ]
+    }
+  ],
+  "applicability": [
+    "Short social media promotions for cafes, craft beverage brands, or slow-lifestyle products",
+    "Calm, cozy product showcase content that does not require fast cuts or high-energy pacing",
+    "Vertical 9:16 format content designed for mobile social feeds"
+  ],
+  "material_requirements": [
+    "One continuous static shot of the core product against a seamless low-contrast neutral background",
+    "Optional subtle visible steam or product detail motion to add gentle visual texture",
+    "Editable text overlay assets in a clean bold serif font, optional thin divider lines for caption blocks"
+  ],
+  "limitations": [
+    "This analysis is based on sampled still frames only, and cannot confirm exact continuous camera movement, transition types, or precise text animation timing.",
+    "There is no available audio information, so any claims about background music, voiceover, or ambient sound pacing cannot be supported by this evidence.",
+    "The observed captions are specific to a coffee shop brand promotion, and the presented visual approach does not guarantee audience retention, engagement, or sales performance.",
+    "Based on sampled still frames; continuous motion and exact subtitle timing are not verified.",
+    "Audio, speech, music beats and performance metrics were not analyzed."
+  ],
+  "review": {
+    "status": "pending",
+    "method": "none",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 8,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

@@ -1,8 +1,12 @@
-"""Explicitly human-authored public examples, never attributed to an analyzer."""
+"""Human-authored starters and explicitly reviewed, bundled reference cards."""
 
 import uuid
+import json
+from app.core.config import REPO_ROOT
 from app.schemas.structure_card import StructureCard
 from app.runtime.store import Store
+
+_CATALOG_MARKER = "bundled-reference-library-v1"
 
 PATTERNS = [
     (
@@ -52,3 +56,40 @@ def seed_library(store: Store):
         store.put_resource(
             "__public__", "card", card.model_dump(mode="json"), public=True
         )
+
+    # Reviewed reference cards are versioned artifacts shipped with the app.
+    # Their public media lives under /references; user uploads stay private.
+    approved = []
+    for path in sorted((REPO_ROOT / "packages/reference-library/cards").glob("*.json")):
+        card = StructureCard.model_validate(json.loads(path.read_text()))
+        if card.origin != "vision_llm" or not card.observations or not card.rules:
+            raise ValueError(f"Invalid evidence reference card: {path.name}")
+        if card.review.status != "approved":
+            continue
+        approved.append(card)
+
+    # The marker is storage metadata supplied only by this trusted importer;
+    # descriptive origin/source fields alone must not authorize deletion.
+    for card in approved:
+        body = card.model_dump(mode="json")
+        body["_reference_catalog"] = _CATALOG_MARKER
+        store.put_resource("__public__", "card", body, public=True)
+
+    active_ids = {card.id for card in approved}
+    with store.connection(True) as db:
+        rows = db.execute(
+            "SELECT id,body FROM resources WHERE owner='__public__' AND kind='card' AND public=1"
+        ).fetchall()
+        for row in rows:
+            body = json.loads(row["body"])
+            if (
+                row["id"] not in active_ids
+                and body.get("origin") == "vision_llm"
+                and body.get("_reference_catalog") == _CATALOG_MARKER
+            ):
+                db.execute(
+                    "DELETE FROM resources WHERE id=? AND owner='__public__' AND kind='card' AND public=1",
+                    (row["id"],),
+                )
+    # Search results are intersected with these SQLite resources, so any old
+    # pgvector rows immediately lose visibility without a remote DB dependency.

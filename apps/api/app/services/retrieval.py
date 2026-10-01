@@ -28,6 +28,10 @@ def text_for(card):
                 "narrative_flow",
                 "editing_atoms",
                 "reusable_rules",
+                "observations",
+                "rules",
+                "applicability",
+                "material_requirements",
             )
             if k in card
         },
@@ -135,7 +139,7 @@ async def search_cards(settings, store, user, text):
                 settings.global_generation_limit * 10,
             )
             v, usage = await embed(settings, content)
-            card_owner = "__public__" if card["origin"] == "curated" else owner
+            card_owner = store.card_index_owner(owner, card["id"])
             await asyncio.to_thread(upsert, settings, card, card_owner, v, hash_)
             store.event(
                 owner,
