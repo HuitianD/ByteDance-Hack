@@ -35,11 +35,14 @@ production configuration retains secure cookies and requires HTTPS.
 
 ## Recover safely
 
-The annotated Git tag `baseline/local-mvp-2026-09-30` identifies this snapshot.
+The annotated Git tag `baseline/local-mvp-2026-09-30` preserves the original
+working local snapshot. Clean-container verification exposed a browser lookup
+that depended on the working directory. `baseline/portable-mvp-2026-09-30`
+includes the explicit preinstalled browser path and is the deployment baseline.
 To inspect or build it without replacing the current working tree:
 
 ```bash
-git worktree add --detach /tmp/viralcraft-baseline baseline/local-mvp-2026-09-30
+git worktree add --detach /tmp/viralcraft-baseline baseline/portable-mvp-2026-09-30
 ```
 
 Use a fresh data directory for verification. Do not reset, delete or replace

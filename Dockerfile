@@ -29,8 +29,8 @@ COPY apps/renderer apps/renderer
 COPY packages packages
 COPY scripts scripts
 COPY --from=web /app/apps/web/out apps/web/out
-RUN node node_modules/@remotion/cli/remotion-cli.js browser ensure
+RUN node --input-type=module -e "import {ensureBrowser} from '@remotion/renderer'; import {symlinkSync} from 'node:fs'; const browser = await ensureBrowser(); symlinkSync(browser.path, '/usr/local/bin/viralcraft-chromium');"
 RUN python scripts/make_demo.py
-ENV PYTHONPATH=/app/apps/api WEB_DIST=/app/apps/web/out
+ENV PYTHONPATH=/app/apps/api WEB_DIST=/app/apps/web/out REMOTION_BROWSER_EXECUTABLE=/usr/local/bin/viralcraft-chromium
 EXPOSE 8000
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]

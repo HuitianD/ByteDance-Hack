@@ -148,11 +148,15 @@ async function main() {
   const inputProps = mediaAssets
     ? { storyboard, mediaAssets }
     : { storyboard };
+  // The API launches from apps/renderer, while Docker installs the browser at
+  // the repository root. An explicit executable avoids runtime downloads.
+  const browserExecutable = process.env.REMOTION_BROWSER_EXECUTABLE || undefined;
 
   const composition = await selectComposition({
     serveUrl: bundleLocation,
     id: args.compositionId,
     inputProps,
+    browserExecutable,
     ...(publicDir ? { publicDir } : {}),
   });
   console.log(
@@ -168,6 +172,7 @@ async function main() {
     inputProps,
     overwrite: false,
     concurrency: 1,
+    browserExecutable,
     ...(publicDir ? { publicDir } : {}),
     chromiumOptions: {
       disableWebSecurity: true,
