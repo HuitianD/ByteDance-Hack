@@ -58,3 +58,4 @@ class StructureCard(BaseModel):
         description="Scene IDs from the source VideoAnalysis that informed this card.",
     )
     created_at: datetime = Field(description="UTC timestamp when the card was built.")
+    origin: str = "legacy"

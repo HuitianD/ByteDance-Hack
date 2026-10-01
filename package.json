@@ -13,7 +13,8 @@
     "dev:web": "npm run dev --workspace apps/web",
     "dev:renderer": "npm run dev --workspace apps/renderer",
     "build:web": "npm run build --workspace apps/web",
-    "render": "npm run render --workspace apps/renderer"
+    "render": "npm run render --workspace apps/renderer",
+    "typecheck": "npm run typecheck --workspace apps/web && npm run typecheck --workspace apps/renderer && npm run typecheck --workspace packages/schemas"
   },
   "engines": {
     "node": ">=20"

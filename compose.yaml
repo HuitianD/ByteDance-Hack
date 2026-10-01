@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    environment:
+      APP_ENV: development
+      COOKIE_SECURE: "false"
+      LLM_PROVIDER: mock
+      DATA_DIR: /var/data
+      DATABASE_URL: postgresql://viralcraft:local-test-password@search:5432/viralcraft
+    volumes: ["trial-data:/var/data"]
+  search:
+    image: pgvector/pgvector:pg17
+    profiles: ["search"]
+    environment:
+      POSTGRES_USER: viralcraft
+      POSTGRES_PASSWORD: local-test-password
+      POSTGRES_DB: viralcraft
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["search-data:/var/lib/postgresql/data"]
+volumes:
+  trial-data:
+  search-data:

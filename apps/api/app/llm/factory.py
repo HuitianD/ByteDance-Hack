@@ -29,8 +29,9 @@ def get_llm_client(settings: Settings | None = None) -> LLMClient:
         return SeedClient(
             api_key=settings.seed_api_key or "",
             model=settings.seed_model or "",
-            endpoint_id=settings.seed_endpoint_id or "",
+            endpoint_id=settings.seed_endpoint_id or settings.seed_model or "",
             base_url=settings.seed_api_base_url or None,
+            thinking=settings.seed_thinking,
         )
 
     if provider == "mock":

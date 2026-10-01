@@ -132,7 +132,7 @@ async function main() {
   const bundleLocation = await bundle({
     entryPoint,
     // Cache outside the project so npm install / git clean don't nuke it.
-    outDir: path.join(os.tmpdir(), "viralcraft-remotion-bundle"),
+    outDir: path.join(path.dirname(outputPath), "bundle"),
     publicDir,
     onProgress: (p) => {
       // throttle: only log on each 10% step
@@ -166,7 +166,8 @@ async function main() {
     codec: "h264",
     outputLocation: outputPath,
     inputProps,
-    overwrite: true,
+    overwrite: false,
+    concurrency: 1,
     ...(publicDir ? { publicDir } : {}),
     chromiumOptions: {
       disableWebSecurity: true,

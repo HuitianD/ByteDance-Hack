@@ -5,34 +5,8 @@
  * pass the JSON straight through.
  */
 
-export interface StoryboardScene {
-  scene_id: string;
-  start_time: number;
-  end_time: number;
-  duration_seconds: number;
-  layout: string;
-  text?: string | null;
-  visual_description: string;
-  animation?: string | null;
-  transition?: string | null;
-  asset_prompt?: string | null;
-  source_structure_card_id?: string | null;
-  source_editing_atoms?: string[];
-}
+export type { StoryboardSceneWire as StoryboardScene, StoryboardWire as Storyboard } from "@viralcraft/schemas";
 
-export interface Storyboard {
-  id: string;
-  title: string;
-  user_prompt: string;
-  target_duration_seconds: number;
-  actual_duration_seconds: number;
-  fps: number;
-  width: number;
-  height: number;
-  scenes: StoryboardScene[];
-  source_structure_card_ids: string[];
-  created_at: string;
-}
 
 /**
  * Sidecar bundle resolved by the API before invoking the renderer.
@@ -45,6 +19,9 @@ export interface Storyboard {
  * Optional: when absent the composition falls back to placeholder visuals.
  */
 export interface MediaAssets {
+  source_duration_seconds?: number;
+  scene_clips?: Record<string, {path: string; duration_seconds: number}>;
+  audio_relative_path?: string;
   job_id?: string | null;
   /** Absolute filesystem path -- diagnostic only on the renderer side. */
   source_video_path?: string | null;

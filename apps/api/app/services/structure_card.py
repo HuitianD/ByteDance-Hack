@@ -233,6 +233,7 @@ async def extract_structure_card(
     raw["id"] = str(uuid.uuid4())
     raw["source_video_job_id"] = analysis.job_id
     raw["created_at"] = datetime.now(timezone.utc).isoformat()
+    raw["origin"] = "mock" if llm_client.provider_name == "mock" else "metadata_llm"
 
     try:
         return StructureCard.model_validate(raw)

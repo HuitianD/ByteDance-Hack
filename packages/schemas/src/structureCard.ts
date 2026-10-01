@@ -19,6 +19,7 @@ export interface EditingAtom {
 }
 
 export interface StructureCard {
+  origin?: string;
   id: StructureCardId;
   /** Short, memorable label for the structure pattern. */
   patternName: string;

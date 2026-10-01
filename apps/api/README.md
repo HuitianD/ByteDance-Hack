@@ -1,87 +1,16 @@
 # ViralCraft API
 
-FastAPI backend for ViralCraft.
+FastAPI 单进程 API，使用 SQLite 保存邀请会话、归属、任务、额度和事件。
 
-## Setup
-
-```bash
-cd apps/api
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-## Configuring the Seed (ByteDance AIGC) API key
-
-The API reads provider config **only** from `apps/api/.env`. Never put keys
-in source files, the frontend env, or `.env.example`.
-
-Open `apps/api/.env` and set the three required values:
-
-```env
-LLM_PROVIDER=seed
-SEED_API_KEY=<your Seed API key>
-SEED_MODEL=<model name from your Seed console>
-SEED_ENDPOINT_ID=<EP id from your Seed console, e.g. ep-xxxxxxxx-xxxx>
-```
-
-`SEED_API_BASE_URL` is **optional**. If you leave it blank, the client
-defaults to the Volcano Ark cn-beijing host
-(`https://ark.cn-beijing.volces.com/api/v3`). Set it only if your
-deployment uses a different region or host:
-
-```env
-# Optional override
-SEED_API_BASE_URL=https://your-region-host/api/v3
-```
-
-`apps/api/.env` is gitignored (verified via `git check-ignore`). To swap
-providers later, change `LLM_PROVIDER` and set its keys; product code does
-not need to change.
-
-If you want to develop without a key, use:
-
-```env
-LLM_PROVIDER=mock
-```
-
-The mock client returns deterministic stub responses.
-
-## Run
+完整启动、配置和云端说明见 [根 README](../../README.md) 与 [运行手册](../../docs/MVP_RUNBOOK.md)。固定依赖使用 `requirements.lock`。
 
 ```bash
-uvicorn app.main:app --reload --port 8000
+# 在仓库根目录
+LLM_PROVIDER=mock PYTHONPATH=apps/api apps/api/.venv/bin/python -m app.manage invite
+LLM_PROVIDER=mock PYTHONPATH=apps/api apps/api/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+PYTHONPATH=apps/api apps/api/.venv/bin/python -m unittest discover -s apps/api/tests -v
 ```
 
-- Health: http://localhost:8000/health
-- LLM status: http://localhost:8000/llm/status
-- Swagger UI: http://localhost:8000/docs
+`apps/api/.env` 从固定目录读取，密钥不返回前端。新版接口统一 `/api`，媒体必须携带 HttpOnly session cookie；没有全数据目录静态挂载。
 
-`/llm/status` returns the active provider, whether config is complete, and
-the **names** of any missing env vars. It never returns the API key.
-
-## Layout
-
-```
-app/
-  main.py              # FastAPI app, /health, mounts routers
-  core/
-    config.py          # Settings (pydantic-settings, reads .env)
-  llm/
-    base.py            # LLMClient interface, errors
-    seed_client.py     # Seed (ByteDance AIGC) client -- TODOs for payload
-    mock_client.py     # Keyless stub client
-    factory.py         # get_llm_client(settings) -> LLMClient
-  routes/
-    llm.py             # GET /llm/status
-```
-
-## Notes
-
-- Pipeline routes (upload, analyze, retrieve, generate, render) are not yet implemented.
-- `seed_client.py` has clearly marked `TODO(seed-*)` sections for the exact
-  endpoint path, request payload, response shape, and auth header. Fill
-  these in from the official Seed API spec.
-- Pydantic mirrors of the shared schemas (`apps/api/app/schemas/`) will be
-  added when the first real endpoint that needs them lands.
+旧 `/videos`、`/storyboards`、`/llm` 同步路由仅为本地兼容保留，默认关闭。不要使用旧 curl 示例绕过 `/api/jobs`。

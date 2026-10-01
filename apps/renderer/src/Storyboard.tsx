@@ -1,5 +1,7 @@
 import {
   AbsoluteFill,
+  Audio,
+  staticFile,
   Sequence,
   Series,
   useCurrentFrame,
@@ -43,11 +45,18 @@ export const StoryboardComposition: React.FC<StoryboardProps> = ({
   return (
     <MediaAssetsProvider value={mediaAssets ?? null}>
       <AbsoluteFill style={{ background: "#04050a" }}>
+        {mediaAssets?.audio_relative_path && (
+          <Audio
+            src={staticFile(mediaAssets.audio_relative_path)}
+            volume={0.3}
+            loop
+          />
+        )}
         <Series>
           {storyboard.scenes.map((scene, sceneIndex) => {
             const frames = Math.max(
               1,
-              Math.round(scene.duration_seconds * fps)
+              Math.round(scene.duration_seconds * fps),
             );
             return (
               <Series.Sequence
@@ -144,7 +153,8 @@ const MetadataStrip: React.FC<{ storyboard: StoryboardType }> = ({
       >
         <span>{truncate(storyboard.title, 60)}</span>
         <span style={{ fontVariantNumeric: "tabular-nums" }}>
-          {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          {String(activeIndex + 1).padStart(2, "0")} /{" "}
+          {String(total).padStart(2, "0")}
         </span>
       </div>
     </Sequence>

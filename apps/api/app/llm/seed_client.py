@@ -1,16 +1,4 @@
-"""ByteDance Seed (AIGC) LLM client.
-
-Skeleton implementation. The transport, auth header, and base URL pattern
-are wired up so the rest of the app can depend on this class today, but the
-exact request payload and response parsing are intentionally left as TODO
-sections. Fill them in from the official Seed API docs you have access to.
-
-Why a skeleton instead of a guess:
-    Seed/Volcano endpoints differ between deployments (region, model family,
-    OpenAI-compatible vs. native schema). Hardcoding one shape now would
-    almost certainly need to be undone. The TODOs mark the exact spots to
-    edit when you have the official spec.
-"""
+"""ByteDance Seed planner using the Ark chat-completions endpoint."""
 
 from __future__ import annotations
 
@@ -59,6 +47,7 @@ class SeedClient(LLMClient):
         *,
         base_url: str | None = None,
         timeout_seconds: float = 60.0,
+        thinking: str | None = None,
     ) -> None:
         if not api_key:
             raise LLMConfigError("SEED_API_KEY is required for SeedClient")
@@ -69,20 +58,14 @@ class SeedClient(LLMClient):
 
         effective_base_url = (base_url or DEFAULT_SEED_BASE_URL).rstrip("/")
 
+        self.last_usage = {}
         self._model = model
         self._endpoint_id = endpoint_id
+        self._thinking = thinking
         self._http = httpx.AsyncClient(
             base_url=effective_base_url,
             timeout=timeout_seconds,
             headers={
-                # ----------------------------------------------------------
-                # TODO(seed-auth): confirm the auth header expected by your
-                # Seed deployment. Common shapes:
-                #   "Authorization": f"Bearer {api_key}"
-                #   "X-Api-Key": api_key
-                # Replace this line if the official docs require something
-                # different.
-                # ----------------------------------------------------------
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
@@ -148,7 +131,7 @@ class SeedClient(LLMClient):
         return parsed
 
     # ------------------------------------------------------------------
-    # Internals -- fill in TODOs against the official Seed API spec.
+    # Transport and response parsing.
     # ------------------------------------------------------------------
 
     def _build_payload(
@@ -160,34 +143,21 @@ class SeedClient(LLMClient):
         temperature: float | None,
         response_format: Mapping[str, Any] | None,
     ) -> dict[str, Any]:
-        """Construct the request body.
-
-        TODO(seed-payload): replace this body with the exact schema the
-        Seed API expects. The OpenAI-compatible `messages[]` shape below is
-        a placeholder; some Seed endpoints use `input`, `prompt`, or a
-        provider-native schema. Keep the function pure -- transport stays
-        in `_post_chat`.
-
-        TODO(seed-model-vs-endpoint): Volcano Ark commonly uses the
-        endpoint id (EP) as the value of the `model` field. If your
-        deployment expects that, use `self._endpoint_id` instead of
-        `self._model` below. If it expects both (model name + EP), add an
-        extra field per the official spec.
-        """
+        """Construct the Ark chat-completions request using the configured endpoint ID."""
         messages: list[dict[str, str]] = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
         body: dict[str, Any] = {
-            # Volcano Ark expects the endpoint id (EP) as `model`, not the
-            # human-readable model name. SEED_MODEL is kept in config for
-            # logging/diagnostics only.
+            # Ark accepts a public Model ID or a configured endpoint (EP).
+            # The factory prefers an explicit EP, otherwise uses SEED_MODEL.
             "model": self._endpoint_id,
             "messages": messages,
         }
-        if max_tokens is not None:
-            body["max_tokens"] = max_tokens
+        body["max_tokens"] = max_tokens if max_tokens is not None else 4096
+        if self._thinking is not None:
+            body["thinking"] = {"type": self._thinking}
         if temperature is not None:
             body["temperature"] = temperature
         if response_format is not None:
@@ -195,15 +165,8 @@ class SeedClient(LLMClient):
         return body
 
     async def _post_chat(self, payload: Mapping[str, Any]) -> Any:
-        """Send the request and return the decoded JSON response.
-
-        TODO(seed-endpoint): set the correct path. Common values:
-            "/chat/completions"        (Volcano Ark, OpenAI-compatible)
-            "/v3/chat/completions"
-            "/api/v3/chat/completions"
-        Use the path documented for the model family you are targeting.
-        """
-        path = "/chat/completions"  # TODO(seed-endpoint)
+        """Send one request; callers explicitly decide whether to retry."""
+        path = "/chat/completions"
         try:
             resp = await self._http.post(path, json=dict(payload))
         except httpx.HTTPError as exc:
@@ -212,21 +175,17 @@ class SeedClient(LLMClient):
         if resp.status_code >= 400:
             # Body may contain useful diagnostics; keep it short.
             snippet = resp.text[:500] if resp.text else ""
-            raise LLMError(
-                f"Seed returned HTTP {resp.status_code}: {snippet}"
-            )
+            raise LLMError(f"Seed returned HTTP {resp.status_code}: {snippet}")
         try:
-            return resp.json()
+            data = resp.json()
+            self.last_usage = data.get("usage", {})
+            return data
         except ValueError as exc:
             raise LLMError(f"Seed response was not JSON: {exc}") from exc
 
     @staticmethod
     def _extract_text(data: Any) -> str:
-        """Pull the assistant's text out of the response.
-
-        TODO(seed-response): adjust to match the official response schema.
-        Defaults to OpenAI-compatible `choices[0].message.content`.
-        """
+        """Read the assistant content from an Ark chat response."""
         try:
             choices = data["choices"]
             content = choices[0]["message"]["content"]

@@ -2,6 +2,8 @@ import {
   AbsoluteFill,
   Img,
   OffthreadVideo,
+  Loop,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -64,6 +66,7 @@ export const SourceMedia: React.FC<Props> = ({
   forceFrame = false,
 }) => {
   const assets = useMediaAssets();
+  const { fps } = useVideoConfig();
   const frameCount = hasFrames(assets)
     ? assets!.representative_frame_relative_paths!.length
     : 0;
@@ -73,14 +76,28 @@ export const SourceMedia: React.FC<Props> = ({
     layout,
     sceneIndex,
     frameCount,
-    videoAvailable
+    videoAvailable,
   );
   const motion: MotionKind = motionOverride ?? treatment.motion;
   const effectiveScrim = scrim ?? treatment.scrim;
 
-  let bg: React.ReactNode = null;
+  const generated = assets?.scene_clips?.[scene.scene_id];
+  let bg: React.ReactNode = generated ? (
+    <Loop
+      durationInFrames={Math.max(
+        1,
+        Math.round(generated.duration_seconds * fps),
+      )}
+    >
+      <OffthreadVideo
+        src={staticFile(generated.path)}
+        muted
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </Loop>
+  ) : null;
 
-  if (treatment.preferVideo) {
+  if (!bg && treatment.preferVideo) {
     const url = videoUrl(assets);
     if (url) {
       bg = (
@@ -88,6 +105,7 @@ export const SourceMedia: React.FC<Props> = ({
           src={url}
           sceneIndex={sceneIndex}
           motion={motion}
+          sourceDuration={assets?.source_duration_seconds}
         />
       );
     }
@@ -233,32 +251,39 @@ const VideoBackground: React.FC<{
   src: string;
   sceneIndex: number;
   motion: MotionKind;
-}> = ({ src, sceneIndex, motion }) => {
+  sourceDuration?: number;
+}> = ({ src, sceneIndex, motion, sourceDuration }) => {
   const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
-  const startFrom = Math.max(0, sceneIndex * Math.round(fps * 1.5));
+  const sourceFrames = Math.max(1, Math.floor((sourceDuration || 30) * fps));
+  const startFrom = Math.min(
+    Math.max(0, sourceFrames - 1),
+    sceneIndex * Math.round(fps * 1.5),
+  );
   // Video already has its own motion; keep our transform restrained.
   const style = motionStyle(
     motion === "blur-parallax" ? "static" : motion,
     frame,
-    durationInFrames
+    durationInFrames,
   );
 
   return (
-    <OffthreadVideo
-      src={src}
-      muted
-      startFrom={startFrom}
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        transform: style.transform,
-        transformOrigin: style.transformOrigin,
-        filter: "brightness(0.86) saturate(1.06)",
-      }}
-    />
+    <Loop durationInFrames={Math.max(1, sourceFrames - startFrom)}>
+      <OffthreadVideo
+        src={src}
+        muted
+        startFrom={startFrom}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: style.transform,
+          transformOrigin: style.transformOrigin,
+          filter: "brightness(0.86) saturate(1.06)",
+        }}
+      />
+    </Loop>
   );
 };
