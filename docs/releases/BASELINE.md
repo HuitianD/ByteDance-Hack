@@ -49,3 +49,16 @@ Use a fresh data directory for verification. Do not reset, delete or replace
 the current private data, credentials, uploads or historical videos. Real model
 configuration is documented in `apps/api/.env.example` and `docs/MVP_RUNBOOK.md`;
 credentials are never part of this baseline.
+
+## Reference-library checkpoint
+
+`baseline/reference-library-2026-09-30` adds the real-image extraction pipeline,
+three self-authored reference videos, original extractions and explicitly
+AI-reviewed method cards. It retains all earlier public examples. The code
+commit `d8b161d` was independently exported into an empty directory, built and
+run with no host files mounted. `clean-build-d8b161d.json` records the HTTP asset
+checks and a successful MP4 render with the container network disabled.
+
+The catalog is ready for local review, not a claim of real ad performance.
+Human review of the three initial cards is still outstanding; see the
+[catalog review instructions](../../packages/reference-library/README.md).
