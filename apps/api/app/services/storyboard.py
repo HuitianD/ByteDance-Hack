@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -128,7 +129,9 @@ def select_structure_cards(
             "No structure cards available. Run /extract-structure-card on at least one job first."
         )
 
-    chosen = candidates[: max(_MIN_RECENT_CARDS, min(_MAX_RECENT_CARDS, len(candidates)))]
+    chosen = candidates[
+        : max(_MIN_RECENT_CARDS, min(_MAX_RECENT_CARDS, len(candidates)))
+    ]
     return [
         StructureCard.model_validate_json(p.read_text(encoding="utf-8"))
         for _, p in chosen
@@ -157,9 +160,7 @@ def build_generate_prompt(
     cards: Sequence[StructureCard],
 ) -> str:
     template = load_prompt_template()
-    cards_json = json.dumps(
-        [json.loads(c.model_dump_json()) for c in cards], indent=2
-    )
+    cards_json = json.dumps([json.loads(c.model_dump_json()) for c in cards], indent=2)
     return (
         template.replace("{{user_prompt}}", user_prompt)
         .replace("{{target_duration_seconds}}", str(target_duration_seconds))
@@ -232,16 +233,18 @@ def build_mock_storyboard_data(
 ) -> dict[str, Any]:
     """Deterministic mock that derives scene structure from the first card."""
     primary = cards[0]
-    atom_kinds = (
-        [a.kind for a in primary.editing_atoms] or ["hook", "development", "payoff"]
-    )
+    atom_kinds = [a.kind for a in primary.editing_atoms] or [
+        "hook",
+        "development",
+        "payoff",
+    ]
 
     # Pick 3-6 scenes; if first card has more atoms, sample the first 6.
     n_scenes = max(3, min(6, len(atom_kinds)))
     chosen_atoms = atom_kinds[:n_scenes]
     if len(chosen_atoms) < n_scenes:
         # pad with development beats
-        chosen_atoms += ["development"] * (n_scenes - len(chosen_atoms))
+        chosen_atoms += [atom_kinds[-1]] * (n_scenes - len(chosen_atoms))
 
     scenes: list[dict[str, Any]] = []
     for i, atom_kind in enumerate(chosen_atoms):
@@ -254,7 +257,12 @@ def build_mock_storyboard_data(
             layout = "cta_card"
         else:
             # rotate through the middle (non-hook/non-cta) layouts
-            middle = ["text_over_media", "feature_card", "split_compare", "default_scene"]
+            middle = [
+                "text_over_media",
+                "feature_card",
+                "split_compare",
+                "default_scene",
+            ]
             layout = middle[(i - 1) % len(middle)]
 
         scenes.append(
@@ -264,7 +272,9 @@ def build_mock_storyboard_data(
                 "layout": layout,
                 "text": _mock_scene_text(user_prompt, atom_kind, is_first, is_last),
                 "visual_description": _mock_visual(user_prompt, atom_kind, primary),
-                "animation": "fade-in" if is_first else _ANIMATIONS[i % len(_ANIMATIONS)],
+                "animation": (
+                    "fade-in" if is_first else _ANIMATIONS[i % len(_ANIMATIONS)]
+                ),
                 "transition": "none" if is_first else "cut" if i % 2 else "fade",
                 "asset_prompt": (
                     f"Short-form video {atom_kind} scene about: {user_prompt[:160]}. "
@@ -280,12 +290,13 @@ def build_mock_storyboard_data(
 
 
 def _mock_scene_text(user_prompt: str, atom_kind: str, first: bool, last: bool) -> str:
-    snippet = user_prompt.strip().split(".")[0][:48]
+    chinese = any("\u4e00" <= ch <= "\u9fff" for ch in user_prompt)
+    snippet = user_prompt.strip().split("。")[0].split(".")[0][:48]
     if first:
-        return snippet or "Hook"
+        return snippet or "Discover something new"
     if last:
-        return "Try it now"
-    return f"{atom_kind.title()}"
+        return "现在就来体验" if chinese else "Try it now"
+    return "让日常多一点不同" if chinese else "Made for your everyday"
 
 
 def _mock_visual(user_prompt: str, atom_kind: str, card: StructureCard) -> str:
@@ -331,19 +342,33 @@ def _normalize_scenes(
         durations = [d * scale for d in durations]
         total = sum(durations)
 
-    cur = 0.0
+    total_frames = round(target_duration_seconds * DEFAULT_FPS)
+    counts = [max(1, round(d / sum(durations) * total_frames)) for d in durations]
+    counts[-1] += total_frames - sum(counts)
+    if counts[-1] < 1:
+        raise ValueError("The planner returned an invalid scene timeline.")
+    frame = 0
     out: list[dict[str, Any]] = []
-    for s, d in zip(raw_scenes, durations):
-        d_round = round(d, 3)
-        start = round(cur, 3)
-        end = round(cur + d_round, 3)
-        cur = end
-        merged = dict(s)
-        merged["duration_seconds"] = d_round
-        merged["start_time"] = start
-        merged["end_time"] = end
+    for i, (scene, count) in enumerate(zip(raw_scenes, counts)):
+        merged = dict(scene)
+        # Planning cannot inject generated asset IDs; only the asset worker attaches them.
+        merged.update(
+            scene_id=f"scene_{i:03d}",
+            asset_strategy="source_remix",
+            generated_asset_id=None,
+            duration_seconds=count / DEFAULT_FPS,
+            start_time=frame / DEFAULT_FPS,
+            end_time=(frame + count) / DEFAULT_FPS,
+        )
+        if merged.get("layout") not in _LAYOUTS:
+            merged["layout"] = "default_scene"
+        if merged.get("animation") not in [None, "none", *_ANIMATIONS]:
+            merged["animation"] = "fade-in"
+        if merged.get("transition") not in [None, "none", "cut", "fade", "slide"]:
+            merged["transition"] = "cut"
         out.append(merged)
-    return out, round(cur, 3)
+        frame += count
+    return out, frame / DEFAULT_FPS
 
 
 # ---------------------------------------------------------------------------
@@ -357,6 +382,7 @@ async def generate_storyboard(
     target_duration_seconds: float,
     cards: Sequence[StructureCard],
     llm_client: LLMClient,
+    target_media_job_id: str | None = None,
 ) -> Storyboard:
     """Build a Storyboard for the given prompt + cards using the active LLM.
 
@@ -393,6 +419,22 @@ async def generate_storyboard(
         raise StoryboardValidationError(
             [{"loc": ["scenes"], "msg": "must be a list", "type": "type_error.list"}]
         )
+    if not 1 <= len(raw_scenes) <= 8:
+        raise ValueError("The planner must return between 1 and 8 scenes.")
+    allowed = {c.id: {a.kind for a in c.editing_atoms} for c in cards}
+    for scene in raw_scenes:
+        cid = scene.get("source_structure_card_id")
+        if cid not in allowed:
+            raise ValueError(
+                "The planner cited an unknown reference card. Please regenerate."
+            )
+        if not set(scene.get("source_editing_atoms") or []).issubset(allowed[cid]):
+            raise ValueError(
+                "The planner cited an unknown editing pattern. Please regenerate."
+            )
+        d = float(scene.get("duration_seconds") or 0)
+        if not math.isfinite(d) or d <= 0:
+            raise ValueError("Scene durations must be positive finite numbers.")
 
     normalized_scenes, actual_duration = _normalize_scenes(
         raw_scenes, target_duration_seconds
@@ -410,7 +452,11 @@ async def generate_storyboard(
         "scenes": normalized_scenes,
         "source_structure_card_ids": [c.id for c in cards],
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "target_media_job_id": target_media_job_id,
+        "generation_mode": llm_client.provider_name,
     }
+    if target_media_job_id:
+        payload.update(width=720, height=1280)
 
     try:
         return Storyboard.model_validate(payload)
@@ -429,7 +475,13 @@ def storyboard_path(data_dir: Path, storyboard_id: str) -> Path:
 def persist_storyboard(data_dir: Path, storyboard: Storyboard) -> Path:
     out = storyboard_path(data_dir, storyboard.id)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(storyboard.model_dump_json(indent=2), encoding="utf-8")
+    version = out.parent / storyboard.id / f"v{storyboard.version}.json"
+    version.parent.mkdir(parents=True, exist_ok=True)
+    if not version.exists():
+        version.write_text(storyboard.model_dump_json(indent=2), encoding="utf-8")
+    temp = out.with_name(out.stem + "." + str(uuid.uuid4()) + ".tmp")
+    temp.write_text(storyboard.model_dump_json(indent=2), encoding="utf-8")
+    temp.replace(out)
     return out
 
 

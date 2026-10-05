@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import { useLanguage, type Copy } from "@/lib/i18n";
 import type { RenderJob, RenderMediaSummary } from "@/lib/types";
 
 type Props = {
@@ -20,6 +21,7 @@ export function RenderStep({
   height = 1920,
   onRendered,
 }: Props) {
+  const { t } = useLanguage();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [job, setJob] = useState<RenderJob | null>(null);
@@ -32,7 +34,7 @@ export function RenderStep({
       setJob(r);
       onRendered?.(r);
     } catch (err) {
-      setError(formatRenderError(err));
+      setError(formatRenderError(err, t.render));
     } finally {
       setBusy(false);
     }
@@ -53,30 +55,30 @@ export function RenderStep({
           5
         </span>
         <h2 id="render-heading" className="text-lg font-medium text-neutral-100">
-          Render final video
+          {t.render.heading}
         </h2>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <button
           type="button"
           onClick={run}
           disabled={busy}
           aria-busy={busy}
-          className="rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
+          className="w-fit rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
           {busy ? (
             <span className="inline-flex items-center gap-2">
-              <Spinner /> Rendering... (do not close this tab)
+              <Spinner /> {t.render.rendering}
             </span>
           ) : job?.status === "succeeded" ? (
-            "Re-render video"
+            t.render.rerender
           ) : (
-            "Render final video"
+            t.render.render
           )}
         </button>
         <p className="text-xs text-neutral-500">
-          Storyboard{" "}
+          {t.render.storyboard}{" "}
           <span className="font-mono text-neutral-300">{storyboardId}</span>
           {storyboardTitle ? ` — \u201C${storyboardTitle}\u201D` : ""}.
         </p>
@@ -84,15 +86,13 @@ export function RenderStep({
 
       <div className="mt-3 space-y-2">
         <p className="rounded-md border border-rose-500/20 bg-rose-500/5 px-3 py-2 text-xs text-rose-200">
-          First render can take <span className="font-medium">60–90 seconds</span>{" "}
-          while Remotion bundles the project and Chromium warms up. Subsequent
-          renders are much faster.
+          {t.render.firstRenderBeforeTime}{" "}
+          <span className="font-medium">{t.render.firstRenderTime}</span>{" "}
+          {t.render.firstRenderAfterTime}
         </p>
         <p className="rounded-md border border-neutral-800 bg-neutral-950/50 px-3 py-2 text-xs text-neutral-400">
-          The renderer reuses uploaded source footage and extracted frames as
-          the visual background, and adds generated captions, structure, and
-          motion graphics on top. It does <em>not</em> perform pixel-level VFX
-          edits (face filters, object compositing, inpainting) in this MVP.
+          {t.render.mvpNoteBeforeEm} <em>{t.render.mvpNoteEm}</em>{" "}
+          {t.render.mvpNoteAfterEm}
         </p>
       </div>
 
@@ -108,30 +108,30 @@ export function RenderStep({
       {job && (
         <div className="mt-6 space-y-4">
           <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-[max-content_1fr]">
-            <Row label="Status">
+            <Row label={t.render.status}>
               <StatusPill status={job.status} />
             </Row>
-            <Row label="Render job id">
+            <Row label={t.render.renderJobId}>
               <span className="font-mono text-xs text-neutral-300">
                 {job.render_job_id}
               </span>
             </Row>
             {typeof job.duration_ms === "number" && (
-              <Row label="Render time">
+              <Row label={t.render.renderTime}>
                 <span className="text-neutral-200">
-                  {(job.duration_ms / 1000).toFixed(1)}s
+                  {t.common.seconds((job.duration_ms / 1000).toFixed(1))}
                 </span>
               </Row>
             )}
             {job.output_path && (
-              <Row label="Output path">
+              <Row label={t.render.outputPath}>
                 <span className="font-mono text-xs text-neutral-400">
                   {job.output_path}
                 </span>
               </Row>
             )}
             {job.media_summary && (
-              <Row label="Media used">
+              <Row label={t.render.mediaUsed}>
                 <MediaSummaryBadge summary={job.media_summary} />
               </Row>
             )}
@@ -148,7 +148,7 @@ export function RenderStep({
                 />
               </div>
               <p className="text-xs text-neutral-500">
-                Direct link:{" "}
+                {t.render.directLink}{" "}
                 <a
                   href={videoUrl}
                   target="_blank"
@@ -176,23 +176,25 @@ function Spinner() {
 }
 
 function MediaSummaryBadge({ summary }: { summary: RenderMediaSummary }) {
+  const { t } = useLanguage();
+
   if (summary.placeholder_only) {
     return (
       <span className="inline-flex flex-wrap items-center gap-2">
         <span className="inline-block rounded-full bg-amber-500/10 px-3 py-0.5 text-xs font-medium uppercase tracking-wider text-amber-300 ring-1 ring-amber-500/30">
-          Placeholder visuals
+          {t.render.placeholderVisuals}
         </span>
         <span className="text-xs text-neutral-500">
-          (no source media linked — gradient backgrounds only)
+          {t.render.noSourceMedia}
         </span>
       </span>
     );
   }
 
   const parts: string[] = [];
-  if (summary.used_source_video) parts.push("source video");
-  if (summary.used_frames) parts.push(`${summary.frame_count} frames`);
-  const label = parts.join(" + ") || "placeholder visuals";
+  if (summary.used_source_video) parts.push(t.render.sourceVideo);
+  if (summary.used_frames) parts.push(t.render.frames(summary.frame_count));
+  const label = parts.join(" + ") || t.render.placeholderVisualsLower;
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
@@ -201,7 +203,7 @@ function MediaSummaryBadge({ summary }: { summary: RenderMediaSummary }) {
       </span>
       {summary.source_job_id && (
         <span className="font-mono text-[10px] text-neutral-500">
-          job {summary.source_job_id.slice(0, 8)}…
+          {t.render.job} {summary.source_job_id.slice(0, 8)}…
         </span>
       )}
     </span>
@@ -209,6 +211,7 @@ function MediaSummaryBadge({ summary }: { summary: RenderMediaSummary }) {
 }
 
 function StatusPill({ status }: { status: RenderJob["status"] }) {
+  const { t } = useLanguage();
   const map: Record<RenderJob["status"], string> = {
     queued: "bg-neutral-700/30 text-neutral-300 ring-neutral-600/40",
     running: "bg-amber-500/10 text-amber-300 ring-amber-500/30",
@@ -220,7 +223,7 @@ function StatusPill({ status }: { status: RenderJob["status"] }) {
     <span
       className={`inline-block rounded-full px-3 py-0.5 text-xs font-medium uppercase tracking-wider ring-1 ${map[status]}`}
     >
-      {status}
+      {t.render.statusLabels[status]}
     </span>
   );
 }
@@ -245,24 +248,21 @@ function Row({
  * sentence + an optional details line so the UI never shows a raw stack
  * trace or JSON blob.
  */
-function formatRenderError(err: unknown): string {
+function formatRenderError(err: unknown, t: Copy["render"]): string {
   if (err instanceof ApiError) {
     if (err.status === 404) {
-      return "We couldn't find this storyboard on the server. Try generating it again.";
+      return t.error404;
     }
     if (err.status === 503) {
-      return "The Remotion renderer isn't installed. Run `npm install --workspace apps/renderer` and retry.";
+      return t.error503;
     }
     if (err.status === 502) {
-      return (
-        "Render subprocess failed. Open the API logs for the full traceback; " +
-        "common causes: Chromium download interrupted or a layout exception."
-      );
+      return t.error502;
     }
-    return `Render failed (${err.status}): ${err.message}`;
+    return t.failedStatus(err.status, err.message);
   }
   if (err instanceof Error) {
-    return `Render failed: ${err.message}`;
+    return t.failedMessage(err.message);
   }
-  return "Render failed for an unknown reason.";
+  return t.failedUnknown;
 }

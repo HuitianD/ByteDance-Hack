@@ -1,4 +1,4 @@
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Caption } from "../components/Caption";
 import { SourceMedia } from "../media/SourceMedia";
@@ -9,52 +9,67 @@ type Props = {
   sceneIndex?: number;
 };
 
+/**
+ * Hook layout — opens the ad. Source video runs full-bleed behind a
+ * stronger cinematic scrim; the title reveals word-by-word with a thin
+ * hairline drawing in beneath it.
+ */
 export const HookTitle: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const text = scene.text || "Hook";
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Hairline draws in shortly after the title's first word starts to land.
+  const lineProgress = interpolate(
+    frame,
+    [Math.round(fps * 0.5), Math.round(fps * 1.4)],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
 
   return (
     <AbsoluteFill>
-      {/* Hook uses the source video as a fullscreen background when available
-          so the opening beat lands on real footage, not a gradient card. */}
-      <SourceMedia
-        scene={scene}
-        sceneIndex={sceneIndex}
-        preferVideo
-        scrim={0.55}
+      <SourceMedia scene={scene} sceneIndex={sceneIndex} layout="hook_title" />
+
+      {/* Heavier top + bottom vignette for cinematic feel; the SourceMedia
+          already paints a base scrim, this layers on a vertical vignette. */}
+      <AbsoluteFill
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 100%)",
+          pointerEvents: "none",
+        }}
       />
+
       <AbsoluteFill
         style={{
           alignItems: "center",
           justifyContent: "center",
           padding: 80,
+          flexDirection: "column",
         }}
       >
         <Caption
           text={text}
-          animation={scene.animation || "scale-pulse"}
           size="xl"
-          weight={800}
-          letterSpacing={-3}
+          tone="serif"
+          weight={500}
+          letterSpacing={-2}
           maxWidth={920}
+          staggerWords
         />
-        {scene.source_editing_atoms && scene.source_editing_atoms.length > 0 && (
-          <div
-            style={{
-              marginTop: 36,
-              padding: "10px 18px",
-              borderRadius: 999,
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              color: "rgba(255,255,255,0.85)",
-              fontSize: 26,
-              fontFamily: "system-ui, sans-serif",
-              letterSpacing: 1.5,
-              textTransform: "uppercase",
-            }}
-          >
-            {scene.source_editing_atoms.join(" · ")}
-          </div>
-        )}
+        <div
+          style={{
+            marginTop: 28,
+            width: 220,
+            height: 1,
+            background: "rgba(255,255,255,0.85)",
+            transform: `scaleX(${lineProgress})`,
+            transformOrigin: "50% 50%",
+            transition: "none",
+            boxShadow: "0 0 8px rgba(255,255,255,0.25)",
+          }}
+        />
       </AbsoluteFill>
     </AbsoluteFill>
   );

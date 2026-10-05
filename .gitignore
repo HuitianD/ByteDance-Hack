@@ -54,3 +54,12 @@ data/knowledge_base/*
 
 # Remotion
 apps/renderer/out/
+
+# Local runtime state
+/data/*.sqlite3*
+/data/worker.lock
+/data/audio/
+/data/generated_assets/
+/data/test-runs/
+/data/integration/
+/apps/api/demo/*.mp4

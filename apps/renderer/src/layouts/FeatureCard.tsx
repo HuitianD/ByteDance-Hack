@@ -1,8 +1,7 @@
-import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { Caption } from "../components/Caption";
 import { SourceMedia } from "../media/SourceMedia";
-import { applyAnimation } from "../util/animation";
 import type { StoryboardScene } from "../types";
 
 type Props = {
@@ -10,76 +9,92 @@ type Props = {
   sceneIndex?: number;
 };
 
+/**
+ * Editorial mid-beat layout (used to be a heavy SaaS-style glass card).
+ *
+ * Now: blur-parallax background by default + a left-aligned lower-third
+ * headline with a thin hairline rule. No glass card, no "FEATURE"
+ * eyebrow — those reads were what made the perfume demo feel like a
+ * product landing page.
+ */
 export const FeatureCard: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
-  const cardAnim = applyAnimation(
-    scene.animation || "slide-up",
+  // Hairline rule draws in beneath the headline.
+  const lineProgress = interpolate(
     frame,
-    fps,
-    durationInFrames
+    [Math.round(fps * 0.35), Math.round(fps * 1.1)],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
+  const textOpacity = interpolate(frame, [0, Math.round(fps * 0.4)], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+  const textShift = interpolate(frame, [0, Math.round(fps * 0.6)], [18, 0], {
+    extrapolateRight: "clamp",
+  });
+
+  // Two-digit ordinal — replaces the "FEATURE" kicker with editorial signal.
+  const ordinal = String(sceneIndex + 1).padStart(2, "0");
 
   return (
     <AbsoluteFill>
-      <SourceMedia scene={scene} sceneIndex={sceneIndex} scrim={0.55} />
+      <SourceMedia scene={scene} sceneIndex={sceneIndex} layout="feature_card" />
 
       <AbsoluteFill
         style={{
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 80,
+          padding: "0 80px 140px",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-start",
         }}
       >
         <div
           style={{
-            opacity: cardAnim.opacity,
-            transform: cardAnim.transform,
-            width: "100%",
+            opacity: textOpacity,
+            transform: `translateY(${textShift}px)`,
             maxWidth: 880,
-            padding: "56px 48px",
-            borderRadius: 36,
-            background: "rgba(15, 16, 26, 0.78)",
-            border: "1px solid rgba(255,255,255,0.18)",
-            backdropFilter: "blur(18px)",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.45)",
             color: "white",
           }}
         >
           <div
             style={{
-              fontFamily: "system-ui, sans-serif",
-              fontSize: 22,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.55)",
-              marginBottom: 20,
+              display: "flex",
+              alignItems: "center",
+              gap: 18,
+              marginBottom: 22,
+              color: "rgba(255,255,255,0.78)",
+              fontFamily:
+                '"Cormorant Garamond", "Playfair Display", Georgia, serif',
+              fontSize: 28,
+              fontStyle: "italic",
+              letterSpacing: 2,
             }}
           >
-            FEATURE
+            <span>—</span>
+            <span style={{ fontVariantNumeric: "tabular-nums" }}>{ordinal}</span>
           </div>
           <Caption
-            text={scene.text || "Key feature"}
+            text={scene.text || ""}
             animation="none"
             size="lg"
+            tone="serif"
             align="left"
-            weight={800}
-            letterSpacing={-1.5}
+            weight={500}
+            letterSpacing={-1.2}
+            maxWidth={780}
           />
-          {scene.visual_description && (
-            <div
-              style={{
-                marginTop: 32,
-                fontFamily: "system-ui, sans-serif",
-                fontSize: 30,
-                lineHeight: 1.4,
-                color: "rgba(255,255,255,0.78)",
-              }}
-            >
-              {scene.visual_description}
-            </div>
-          )}
+          <div
+            style={{
+              marginTop: 22,
+              height: 1,
+              width: 280,
+              background: "rgba(255,255,255,0.78)",
+              transform: `scaleX(${lineProgress})`,
+              transformOrigin: "0% 50%",
+            }}
+          />
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

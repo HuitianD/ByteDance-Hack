@@ -1,0 +1,254 @@
+{
+  "id": "5028146c-1b78-5b67-a936-4f81f74e6154",
+  "pattern_name": "生活提问 → 情境回应 → 到店邀请",
+  "summary": "可见文案先问“忙完了？”，再提出留一点咖啡时间，最后邀请周末到店。画面重复出现同一杯子，信息推进主要由文案完成；没有证据说明产品能改善疲劳等问题。",
+  "hook_type": "贴近日常处境的短问题",
+  "narrative_flow": "处境提问 → 休息情境建议 → 行动邀请",
+  "visual_style": "暖色竖屏杯子画面；白色大字，首尾居中，中段置顶；结尾背景较暗。",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 5.0,
+      "notes": "复用建议：用真实用户处境提出一个问题。"
+    },
+    {
+      "kind": "text_block",
+      "duration_seconds": 5.0,
+      "notes": "复用建议：以产品相关的使用情境回应，不捏造功效。"
+    },
+    {
+      "kind": "closing",
+      "duration_seconds": 5.0,
+      "notes": "复用建议：一个具体邀请；时长并非从静帧测得。"
+    }
+  ],
+  "reusable_rules": [
+    "开场采用目标受众能理解的一个日常问题，避免一开始堆叠卖点。",
+    "用第二段文案回应开场处境，说明产品在什么场合被使用；没有依据时不要写成疗效或性能承诺。",
+    "结尾只给一个具体行动邀请，并检查邀请内容是否由创作者真实提供。",
+    "保持产品在画面中可辨识，把不同文案分段展示；先使用三段节奏，再通过实际阅读测试调整时长。",
+    "结尾使用高对比、居中的简短邀请；可用短横线辅助分组，但先检查它与品牌样式是否相符。"
+  ],
+  "source_video_job_id": "4767f58a-e822-47e8-8f2d-ec57663632ab",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:48:18.809303Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 2,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "问题到回应 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/question.mp4",
+    "sha256": "720c9703f89c0a2f30cd33d28530ed44534af6b16e0c992587a19575e274cbf7",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; differences in narrative come from caption order and timing.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/question/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/question/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/question/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/question/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/question/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/question/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/question/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/question/frame_007.jpg"
+    },
+    {
+      "index": 8,
+      "timestamp_seconds": 14.966666666666667,
+      "url": "/references/question/frame_008.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 4.0,
+      "frame_indices": [
+        0,
+        1,
+        2
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "0秒帧可见杯子；2秒、4秒帧在杯子上方居中显示“忙完了？／歇一下”，使用问句与简短建议。"
+    },
+    {
+      "id": "obs_2",
+      "aspect": "information_flow",
+      "start_seconds": 4.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        2,
+        3,
+        4
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "6秒、8秒帧的上方字幕是“留一点 咖啡／时间”，与前段的休息提问形成情境上的回应。画面中的杯子仍可见。"
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "10秒帧较暗且没有可读文案；12秒、14秒、14.9667秒帧显示“周末来／Craft 坐坐”。这是一个邀请，不能推出已有到店或购买结果。"
+    },
+    {
+      "id": "obs_4",
+      "aspect": "pacing",
+      "start_seconds": 0.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        1,
+        2,
+        4,
+        7
+      ],
+      "source_segments": [
+        "scene_000",
+        "scene_001"
+      ],
+      "observation": "2秒与4秒样本显示相同问题文字，8秒样本显示咖啡时间，14秒样本显示邀请。可以观察到三组信息依次出现，但静帧不能确认准确持续时长、所有切点或是否快速运动。"
+    },
+    {
+      "id": "obs_5",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_001"
+      ],
+      "observation": "12秒、14秒、14.9667秒帧的结尾文字为白色、位于杯子上方居中，下面有一条短横线。"
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "开场采用目标受众能理解的一个日常问题，避免一开始堆叠卖点。",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "用第二段文案回应开场处境，说明产品在什么场合被使用；没有依据时不要写成疗效或性能承诺。",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "结尾只给一个具体行动邀请，并检查邀请内容是否由创作者真实提供。",
+      "evidence_ids": [
+        "obs_3"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "保持产品在画面中可辨识，把不同文案分段展示；先使用三段节奏，再通过实际阅读测试调整时长。",
+      "evidence_ids": [
+        "obs_1",
+        "obs_2",
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_5",
+      "instruction": "结尾使用高对比、居中的简短邀请；可用短横线辅助分组，但先检查它与品牌样式是否相符。",
+      "evidence_ids": [
+        "obs_5"
+      ]
+    }
+  ],
+  "applicability": [
+    "希望用生活处境引出商品使用情境的本地商家或商品短片。",
+    "适合有一个清晰行动目标的短文案；适用性属于待验证的产品假设。"
+  ],
+  "material_requirements": [
+    "能清楚看见目标商品的视频，并为文字保留足够空间。",
+    "真实的使用情境和可执行的到店或咨询邀请；不要求复制咖啡杯或蒸汽。"
+  ],
+  "limitations": [
+    "仅分析9张静帧，不能确认声音、连续运动、准确字幕起止或所有剪辑切点。",
+    "原模型把蒸汽形状推断为连续运动，并误判字体；审核版移除了这些判断。",
+    "三段各5秒是复用方案建议，不是由抽帧测量得到的准确字幕时长。",
+    "这是复用已生成镜头的原创演示，没有真实广告效果或用户转化证据。",
+    "已完成AI视觉复核，尚无真人审核。"
+  ],
+  "review": {
+    "status": "approved",
+    "method": "assistant_visual",
+    "reviewer": "Codex visual review",
+    "reviewed_at": "2026-10-01T00:49:50.707201Z",
+    "notes": "核对9张实际输入帧及可见字幕顺序；移除连续运动、准确镜头节奏和字体类别推断。将unknown叙事补为有可见文案依据的处境提问、情境回应、邀请。未作真人审核。"
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 9,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

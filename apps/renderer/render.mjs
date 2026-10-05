@@ -132,7 +132,7 @@ async function main() {
   const bundleLocation = await bundle({
     entryPoint,
     // Cache outside the project so npm install / git clean don't nuke it.
-    outDir: path.join(os.tmpdir(), "viralcraft-remotion-bundle"),
+    outDir: path.join(path.dirname(outputPath), "bundle"),
     publicDir,
     onProgress: (p) => {
       // throttle: only log on each 10% step
@@ -148,11 +148,15 @@ async function main() {
   const inputProps = mediaAssets
     ? { storyboard, mediaAssets }
     : { storyboard };
+  // The API launches from apps/renderer, while Docker installs the browser at
+  // the repository root. An explicit executable avoids runtime downloads.
+  const browserExecutable = process.env.REMOTION_BROWSER_EXECUTABLE || undefined;
 
   const composition = await selectComposition({
     serveUrl: bundleLocation,
     id: args.compositionId,
     inputProps,
+    browserExecutable,
     ...(publicDir ? { publicDir } : {}),
   });
   console.log(
@@ -166,7 +170,9 @@ async function main() {
     codec: "h264",
     outputLocation: outputPath,
     inputProps,
-    overwrite: true,
+    overwrite: false,
+    concurrency: 1,
+    browserExecutable,
     ...(publicDir ? { publicDir } : {}),
     chromiumOptions: {
       disableWebSecurity: true,

@@ -9,3 +9,30 @@
 body {
   @apply bg-neutral-950 text-neutral-100 antialiased;
 }
+
+@layer components {
+  .studio-panel {
+    @apply rounded-2xl border border-neutral-800 bg-neutral-900/40 p-5 sm:p-6;
+  }
+  .studio-panel h2 {
+    @apply text-lg font-medium;
+  }
+  .studio-panel p {
+    @apply leading-relaxed text-neutral-400;
+  }
+  .studio-panel h2 + p {
+    @apply mt-2 text-sm;
+  }
+  .studio-input {
+    @apply rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-fuchsia-400 focus:ring-1 focus:ring-fuchsia-400;
+  }
+  .studio-button {
+    @apply rounded-lg bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .studio-secondary {
+    @apply cursor-pointer rounded-lg border border-neutral-700 px-3 py-2 text-sm text-neutral-200 hover:border-neutral-500 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .studio-notice {
+    @apply rounded-lg border border-amber-400/20 bg-amber-400/5 p-3 text-sm text-amber-100;
+  }
+}

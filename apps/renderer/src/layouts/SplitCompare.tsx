@@ -22,22 +22,25 @@ export const SplitCompare: React.FC<Props> = ({ scene, sceneIndex = 0 }) => {
   const assets = useMediaAssets();
   const frameRels = assets?.representative_frame_relative_paths ?? [];
 
-  // Pick two distinct frames if possible; otherwise placeholders.
-  const topRel =
-    frameRels.length > 0 ? frameRels[sceneIndex % frameRels.length] : null;
-  const bottomRel =
-    frameRels.length > 1
-      ? frameRels[
-          (sceneIndex + Math.max(1, Math.floor(frameRels.length / 2))) %
-            frameRels.length
-        ]
-      : null;
+  // Two distinct frames driven by a coprime stride so successive
+  // split scenes don't reuse the same pair. Falls back gracefully
+  // when fewer than 2 frames are available.
+  const n = frameRels.length;
+  const topIdx = n > 0 ? (sceneIndex * 3 + 1) % n : -1;
+  const bottomIdx =
+    n > 1
+      ? (sceneIndex * 3 + 1 + Math.max(1, Math.floor(n / 2))) % n
+      : -1;
+  const safeBottomIdx = bottomIdx === topIdx ? (topIdx + 1) % Math.max(1, n) : bottomIdx;
+
+  const topRel = topIdx >= 0 ? frameRels[topIdx] : null;
+  const bottomRel = safeBottomIdx >= 0 ? frameRels[safeBottomIdx] : null;
   const topUrl = topRel ? staticFile(topRel) : null;
   const bottomUrl = bottomRel ? staticFile(bottomRel) : null;
 
   const realMedia = Boolean(topUrl && bottomUrl);
-  const topLabel = realMedia ? "ORIGINAL STYLE" : "STRUCTURE A";
-  const bottomLabel = realMedia ? "REMIXED DIRECTION" : "STRUCTURE B";
+  const topLabel = realMedia ? "SOURCE MOOD" : "STRUCTURE A";
+  const bottomLabel = realMedia ? "REMIXED MESSAGE" : "STRUCTURE B";
 
   return (
     <AbsoluteFill style={{ background: "#0a0a14" }}>

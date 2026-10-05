@@ -1,0 +1,229 @@
+{
+  "id": "bf96ee4f-8da4-5da6-912d-649e79e774c2",
+  "pattern_name": "主题开场 → 三项编号清单 → 邀请",
+  "summary": "可见字幕从“咖啡小计划”推进到01、02、03，再以到店邀请结尾。同一杯子承载多条信息，编号帮助区分段落；没有实际数据证明这种表达提高完播率。",
+  "hook_type": "简短主题标题",
+  "narrative_flow": "主题 → 01选杯子 → 02留安静时间 → 03享受这一杯 → 邀请",
+  "visual_style": "竖屏暖色杯子画面，白色大字；清单文字分别出现在上方、左下方和中部，结尾回到居中。",
+  "editing_atoms": [
+    {
+      "kind": "opening",
+      "duration_seconds": 3.0,
+      "notes": "复用建议：一句主题说明清单讲什么。"
+    },
+    {
+      "kind": "body",
+      "duration_seconds": 9.0,
+      "notes": "复用建议：三个有依据的条目，各约3秒，按阅读速度调整。"
+    },
+    {
+      "kind": "closing",
+      "duration_seconds": 3.0,
+      "notes": "复用建议：一个行动邀请。时长非抽帧精确测量值。"
+    }
+  ],
+  "reusable_rules": [
+    "先用一句主题标题说明接下来清单的范围，让观众知道将看到什么。",
+    "将要点写成01、02、03三个短条目；编号表示展示顺序，不应让用户误以为存在未提供的产品功效或排名证据。",
+    "清单结束后用一条行动邀请收尾，保持与开场一致的高对比文字风格。",
+    "为每个条目选择不遮挡关键信息的字幕位置；源片的上、下、中布局可以参考，但应按新素材构图调整。"
+  ],
+  "source_video_job_id": "e8496c8b-3af0-451c-8814-f99976112e2e",
+  "source_segments": [
+    "scene_000",
+    "scene_001"
+  ],
+  "created_at": "2026-10-01T00:49:31.561892Z",
+  "origin": "vision_llm",
+  "schema_version": 2,
+  "version": 2,
+  "source": {
+    "kind": "self_authored_demo",
+    "title": "编号清单推进 · 自制演示",
+    "author": "ViralCraft — AI-assisted demonstration",
+    "url": null,
+    "license": null,
+    "license_url": null,
+    "media_url": "/references/list.mp4",
+    "sha256": "8c99cef3abb78ec960556dfd15e83c16d4a53ca49ba9cfe6ea0c1313b7254802",
+    "original_duration_seconds": 15.0,
+    "excerpt_start_seconds": 0.0,
+    "excerpt_end_seconds": 15.0,
+    "changes": [
+      "Authored demonstration using the existing generated cup clip and Remotion captions.",
+      "The source clip repeats; differences in narrative come from caption order and timing.",
+      "No new video-generation request was made for this library."
+    ]
+  },
+  "evidence_frames": [
+    {
+      "index": 0,
+      "timestamp_seconds": 0.0,
+      "url": "/references/list/frame_000.jpg"
+    },
+    {
+      "index": 1,
+      "timestamp_seconds": 2.0,
+      "url": "/references/list/frame_001.jpg"
+    },
+    {
+      "index": 2,
+      "timestamp_seconds": 4.0,
+      "url": "/references/list/frame_002.jpg"
+    },
+    {
+      "index": 3,
+      "timestamp_seconds": 6.0,
+      "url": "/references/list/frame_003.jpg"
+    },
+    {
+      "index": 4,
+      "timestamp_seconds": 8.0,
+      "url": "/references/list/frame_004.jpg"
+    },
+    {
+      "index": 5,
+      "timestamp_seconds": 10.0,
+      "url": "/references/list/frame_005.jpg"
+    },
+    {
+      "index": 6,
+      "timestamp_seconds": 12.0,
+      "url": "/references/list/frame_006.jpg"
+    },
+    {
+      "index": 7,
+      "timestamp_seconds": 14.0,
+      "url": "/references/list/frame_007.jpg"
+    },
+    {
+      "index": 8,
+      "timestamp_seconds": 14.966666666666667,
+      "url": "/references/list/frame_008.jpg"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs_1",
+      "aspect": "hook",
+      "start_seconds": 0.0,
+      "end_seconds": 2.0,
+      "frame_indices": [
+        0,
+        1
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "0秒帧为杯子画面；2秒帧可读“咖啡／小计划”，白字居中并有短横线。"
+    },
+    {
+      "id": "obs_2",
+      "aspect": "pacing",
+      "start_seconds": 2.0,
+      "end_seconds": 6.0,
+      "frame_indices": [
+        1,
+        2,
+        3
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "2秒帧是主题标题，4秒帧在上方显示“01 选喜欢的杯子”，6秒帧无可读字幕。采样证据不能确定文字的准确起止或空白间隔。"
+    },
+    {
+      "id": "obs_3",
+      "aspect": "information_flow",
+      "start_seconds": 6.0,
+      "end_seconds": 10.0,
+      "frame_indices": [
+        3,
+        4,
+        5
+      ],
+      "source_segments": [
+        "scene_000"
+      ],
+      "observation": "8秒帧左下方显示“02 留一点安静时间”，10秒帧中部显示“03 慢慢享受这一杯”。结合4秒的01，三个编号构成可见的信息推进顺序。"
+    },
+    {
+      "id": "obs_4",
+      "aspect": "caption_layout",
+      "start_seconds": 10.0,
+      "end_seconds": 15.0,
+      "frame_indices": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "source_segments": [
+        "scene_000",
+        "scene_001"
+      ],
+      "observation": "10秒帧可读03条目，12秒帧较暗且无可读文字；14秒及14.9667秒帧显示居中的“周末来／Craft 坐坐”和短横线。不能仅凭这些静帧确定暗化的动画方式。"
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_1",
+      "instruction": "先用一句主题标题说明接下来清单的范围，让观众知道将看到什么。",
+      "evidence_ids": [
+        "obs_1"
+      ]
+    },
+    {
+      "id": "rule_2",
+      "instruction": "将要点写成01、02、03三个短条目；编号表示展示顺序，不应让用户误以为存在未提供的产品功效或排名证据。",
+      "evidence_ids": [
+        "obs_2",
+        "obs_3"
+      ]
+    },
+    {
+      "id": "rule_3",
+      "instruction": "清单结束后用一条行动邀请收尾，保持与开场一致的高对比文字风格。",
+      "evidence_ids": [
+        "obs_4"
+      ]
+    },
+    {
+      "id": "rule_4",
+      "instruction": "为每个条目选择不遮挡关键信息的字幕位置；源片的上、下、中布局可以参考，但应按新素材构图调整。",
+      "evidence_ids": [
+        "obs_2",
+        "obs_3",
+        "obs_4"
+      ]
+    }
+  ],
+  "applicability": [
+    "已经有三个真实要点、步骤或使用建议的商品短片。",
+    "适合先给主题再逐项解释的短内容；是否优于其他结构仍需对照测试。"
+  ],
+  "material_requirements": [
+    "一条能承载文字的目标素材；如每项需要不同动作，必须另行提供能呈现动作的素材。",
+    "三个由创作者确认的真实条目和一个明确邀请；不能让模型补出不存在的卖点。"
+  ],
+  "limitations": [
+    "9张静帧不能确认连续动作、准确镜头时长、全部转场、语音或音乐卡点。",
+    "原模型提出添加蒸汽和渐暗动画；审核版改成有证据的编号与布局方法，避免迁移不必要的咖啡内容。",
+    "条目建议时长属于复用方案，并非模型从静帧精确测出的字幕持续时间。",
+    "源片为自制演示，重复复用已有生成镜头；没有真实爆款或投放效果证据。",
+    "已完成AI视觉复核，尚无真人审核。"
+  ],
+  "review": {
+    "status": "approved",
+    "method": "assistant_visual",
+    "reviewer": "Codex visual review",
+    "reviewed_at": "2026-10-01T00:50:36.785724Z",
+    "notes": "核对9张实际输入帧，确认主题、01/02/03及邀请文字；将连续运动、精确时长、渐暗方式改为采样观察，移除添加蒸汽的非必要迁移建议。尚未真人复核。"
+  },
+  "analysis": {
+    "mode": "vision",
+    "model": "doubao-seed-2-1-lite-260915",
+    "frame_count": 9,
+    "prompt_version": "reference-evidence-v2"
+  }
+}

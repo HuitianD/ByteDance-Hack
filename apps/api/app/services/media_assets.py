@@ -144,6 +144,11 @@ def _resolve_job_id_for_storyboard(
         2. Return the first job_id whose upload dir actually exists. This
            keeps things deterministic for the first card in the list.
     """
+    target = storyboard.get("target_media_job_id")
+    if target:
+        if not _is_uuid(target) or not (data_dir / "uploads" / target).is_dir():
+            raise ValueError("Target media is unavailable. Upload it again before rendering.")
+        return target
     card_ids = storyboard.get("source_structure_card_ids") or []
     if not isinstance(card_ids, list) or not card_ids:
         return None

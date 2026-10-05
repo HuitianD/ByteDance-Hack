@@ -14,9 +14,11 @@ import asyncio
 import json
 import logging
 import os
+import signal
 import shutil
 import time
 import uuid
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -147,14 +149,25 @@ async def _run_renderer(
         cwd=str(RENDERER_DIR),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+        start_new_session=True,
     )
 
     try:
         stdout_b, stderr_b = await asyncio.wait_for(
             proc.communicate(), timeout=_RENDER_TIMEOUT_SECONDS
         )
+    except asyncio.CancelledError:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        await proc.wait()
+        raise
     except asyncio.TimeoutError as exc:
-        proc.kill()
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
         await proc.wait()
         raise RenderError(
             f"Renderer timed out after {_RENDER_TIMEOUT_SECONDS}s"
@@ -174,98 +187,84 @@ async def render_storyboard(
     *,
     storyboard_id: str,
     data_dir: Path,
+    snapshot: dict | None = None,
+    render_id: str | None = None,
+    generated_clips: dict | None = None,
+    audio_path: str | None = None,
 ) -> RenderJob:
-    """Run a synchronous render and return the resulting RenderJob.
-
-    Raises:
-        FileNotFoundError: storyboard JSON missing.
-        RendererSetupError: node/renderer not installed.
-        RenderError: subprocess failed or output file missing.
-    """
+    """Render an immutable snapshot using only this job's staged assets."""
     sb_path = storyboard_json_path(data_dir, storyboard_id)
-    if not sb_path.exists():
-        raise FileNotFoundError(
-            f"No storyboard saved at {sb_path}. Generate one first via "
-            "POST /storyboards/generate."
-        )
-
-    # Sanity: parse just enough to confirm it's a valid storyboard JSON.
-    try:
-        sb_json = json.loads(sb_path.read_text(encoding="utf-8"))
-        if not isinstance(sb_json, dict) or "scenes" not in sb_json:
-            raise ValueError("missing 'scenes'")
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise RenderError(
-            f"Storyboard file is not a valid storyboard: {exc}"
-        ) from exc
-
+    sb_json = snapshot or json.loads(sb_path.read_text(encoding="utf-8"))
+    if not sb_json.get("scenes"):
+        raise ValueError("The storyboard has no scenes.")
     cli = _ensure_renderer_ready()
-
-    output_path = render_output_path(data_dir, storyboard_id)
+    rj_id = render_id or str(uuid.uuid4())
+    relative = f"renders/{storyboard_id}/{rj_id}/final.mp4"
+    output_path = data_dir / relative
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path = output_path.parent / "storyboard.json"
+    snapshot_path.write_text(json.dumps(sb_json), encoding="utf-8")
+    media = resolve_media_assets(data_dir=data_dir, storyboard=sb_json)
+    if sb_json.get("target_media_job_id") and not media.has_media:
+        raise ValueError("Target media is missing. Upload it again.")
+    started, created = time.monotonic(), datetime.now(timezone.utc)
+    with tempfile.TemporaryDirectory(prefix="viralcraft-render-") as tmp:
+        stage = Path(tmp)
 
-    # Resolve source media from the storyboard's source structure cards.
-    # If nothing maps, the renderer falls back to placeholder visuals.
-    media_assets: MediaAssets = resolve_media_assets(
-        data_dir=data_dir, storyboard=sb_json
-    )
+        def copy_asset(relative_path: str, name: str) -> str:
+            source = (data_dir / relative_path).resolve()
+            if not source.is_relative_to(data_dir.resolve()) or not source.is_file():
+                raise ValueError("Render asset is unavailable.")
+            dest = stage / (name + source.suffix)
+            shutil.copy2(source, dest)
+            return dest.name
 
-    media_assets_path: Optional[Path] = None
-    if media_assets.has_media:
-        media_assets_path = output_path.parent / "media_assets.json"
-        media_assets_path.write_text(
-            json.dumps(media_assets.to_dict(), indent=2), encoding="utf-8"
+        bundle = {"job_id": media.job_id, "representative_frame_relative_paths": []}
+        if media.source_video_relative_path:
+            bundle["source_video_relative_path"] = copy_asset(
+                media.source_video_relative_path, "source"
+            )
+            from app.services.video_analysis import _read_metadata
+
+            bundle["source_duration_seconds"] = _read_metadata(
+                data_dir / media.source_video_relative_path
+            ).duration_seconds
+        for i, rel in enumerate(media.representative_frame_relative_paths):
+            bundle["representative_frame_relative_paths"].append(
+                copy_asset(rel, f"frame_{i}")
+            )
+        bundle["scene_clips"] = {}
+        for i, (scene_id, clip) in enumerate((generated_clips or {}).items()):
+            bundle["scene_clips"][scene_id] = {
+                "path": copy_asset(clip["path"], f"generated_{i}"),
+                "duration_seconds": clip["duration_seconds"],
+            }
+        if audio_path:
+            bundle["audio_relative_path"] = copy_asset(audio_path, "audio")
+        sidecar = output_path.parent / "media_assets.json"
+        sidecar.write_text(json.dumps(bundle), encoding="utf-8")
+        rc, stdout, stderr = await _run_renderer(
+            cli=cli,
+            storyboard_path=snapshot_path,
+            output_path=output_path,
+            public_dir=stage,
+            media_assets_path=sidecar,
         )
-        log.info(
-            "Source-aware render: job_id=%s frames=%d video=%s",
-            media_assets.job_id,
-            len(media_assets.representative_frame_paths),
-            bool(media_assets.source_video_path),
-        )
-    else:
-        log.info(
-            "No source media resolved for storyboard %s; renderer will use "
-            "placeholder visuals.",
-            storyboard_id,
-        )
-
-    started = time.monotonic()
-    started_at = datetime.now(timezone.utc)
-    rj_id = str(uuid.uuid4())
-
-    rc, stdout, stderr = await _run_renderer(
-        cli=cli,
-        storyboard_path=sb_path,
-        output_path=output_path,
-        # Mount DATA_DIR as Remotion's publicDir so `staticFile()` can
-        # resolve uploads/frames at render time.
-        public_dir=data_dir if media_assets.has_media else None,
-        media_assets_path=media_assets_path,
-    )
-    elapsed_ms = int((time.monotonic() - started) * 1000)
-
+    shutil.rmtree(output_path.parent / "bundle", ignore_errors=True)
     if rc != 0 or not output_path.exists():
-        log.error("Renderer failed (rc=%s)\nSTDOUT tail:\n%s\nSTDERR tail:\n%s",
-                  rc, _stderr_tail(stdout, 10), _stderr_tail(stderr, 30))
+        log.error("Render failed: %s", _stderr_tail(stderr))
         raise RenderError(
-            f"Renderer exited with code {rc}.",
-            stderr_tail=_stderr_tail(stderr, 30) or _stderr_tail(stdout, 30),
+            "Render failed. Please retry.", stderr_tail=_stderr_tail(stderr)
         )
-
-    if stderr.strip():
-        # Remotion logs progress to stderr too; only log at debug.
-        log.debug("Renderer stderr: %s", _stderr_tail(stderr, 20))
-
     return RenderJob(
         render_job_id=rj_id,
         storyboard_id=storyboard_id,
         status="succeeded",
-        output_path=render_output_relative(storyboard_id),
-        output_url=f"/static/{render_output_relative(storyboard_id)}",
-        duration_ms=elapsed_ms,
-        error=None,
-        media_summary=_summarize_media(media_assets),
-        created_at=started_at,
+        output_path=relative,
+        output_url=f"/api/media/{rj_id}",
+        duration_ms=int((time.monotonic() - started) * 1000),
+        media_summary=_summarize_media(media),
+        created_at=created,
     )
 
 

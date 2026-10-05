@@ -40,6 +40,12 @@ no markdown fences):
 
 ## Guidelines
 
+- This is SOURCE REMIX mode. The reference cards supply structure, not footage.
+- All scenes use the user's target video or its sampled stills. Do not promise new objects, product shots, visual transformations, or new locations.
+- Do not invent product benefits or factual claims. Only use details in the brief.
+- Reuse only card IDs and editing atom kinds actually present in the input. Never invent lineage.
+- Internal labels such as development, hook and payoff are not on-screen advertising copy.
+
 - Pick **3-7 scenes**.
 - Scene durations should sum approximately to `target_duration_seconds`.
   Don't worry about hitting it exactly -- the server will normalize.

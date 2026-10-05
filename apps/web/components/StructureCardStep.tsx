@@ -3,11 +3,12 @@
 import { useState } from "react";
 
 import { ApiError, api } from "@/lib/api";
+import { localeToDateLocale, useLanguage } from "@/lib/i18n";
 import type { StructureCard } from "@/lib/types";
 
-function formatTime(iso: string): string {
+function formatTime(iso: string, locale: string): string {
   try {
-    return new Date(iso).toLocaleString();
+    return new Date(iso).toLocaleString(locale);
   } catch {
     return iso;
   }
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function StructureCardStep({ jobId, onExtracted }: Props) {
+  const { t } = useLanguage();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [card, setCard] = useState<StructureCard | null>(null);
@@ -33,11 +35,11 @@ export function StructureCardStep({ jobId, onExtracted }: Props) {
       onExtracted?.(r);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(`Extraction failed (${err.status}): ${err.message}`);
+        setError(t.structure.failedStatus(err.status, err.message));
       } else if (err instanceof Error) {
-        setError(`Extraction failed: ${err.message}`);
+        setError(t.structure.failedMessage(err.message));
       } else {
-        setError("Extraction failed.");
+        setError(t.structure.failedGeneric);
       }
     } finally {
       setBusy(false);
@@ -49,7 +51,7 @@ export function StructureCardStep({ jobId, onExtracted }: Props) {
       aria-labelledby="structure-card-heading"
       className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6"
     >
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-fuchsia-500/10 text-sm font-semibold text-fuchsia-300 ring-1 ring-fuchsia-500/30">
             3
@@ -58,46 +60,47 @@ export function StructureCardStep({ jobId, onExtracted }: Props) {
             id="structure-card-heading"
             className="text-lg font-medium text-neutral-100"
           >
-            Extract structure card
+            {t.structure.heading}
           </h2>
         </div>
         <button
           type="button"
           onClick={run}
           disabled={busy}
-          className="rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
+          className="w-fit rounded-md bg-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-fuchsia-400 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
         >
           {busy ? (
             <span className="inline-flex items-center gap-2">
-              <Spinner /> Extracting...
+              <Spinner /> {t.structure.extracting}
             </span>
           ) : card ? (
-            "Re-extract structure card"
+            t.structure.reextract
           ) : (
-            "Extract structure card"
+            t.structure.extract
           )}
         </button>
       </div>
 
       <p className="text-xs text-neutral-500">
-        Distills a reusable creative structure (hook, pacing, atoms) from the
-        analyzed video. Uses the active LLM provider — set{" "}
-        <code className="text-neutral-300">LLM_PROVIDER=mock</code> in{" "}
-        <code className="text-neutral-300">apps/api/.env</code> to test without
-        live Seed calls.
+        {t.structure.descriptionBeforeCode}{" "}
+        <code className="text-neutral-300">LLM_PROVIDER=mock</code>{" "}
+        {t.structure.descriptionBetweenCode}{" "}
+        <code className="text-neutral-300">apps/api/.env</code>
+        {t.structure.descriptionAfterCode}
       </p>
 
       {!card && !busy && !error && (
         <p className="mt-4 rounded-md border border-dashed border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-500">
-          Click <span className="text-neutral-300">Extract structure card</span>{" "}
-          to distill the reusable creative pattern for this upload.
+          {t.structure.emptyBeforeButton}{" "}
+          <span className="text-neutral-300">{t.structure.emptyButton}</span>{" "}
+          {t.structure.emptyAfterButton}
         </p>
       )}
 
       {busy && (
         <div className="mt-4 rounded-md border border-neutral-800 bg-neutral-950/40 p-3 text-xs text-neutral-400">
           <span className="inline-flex items-center gap-2">
-            <Spinner /> Calling the LLM and validating the structure card...
+            <Spinner /> {t.structure.busy}
           </span>
         </div>
       )}
@@ -126,11 +129,13 @@ function Spinner() {
 }
 
 function CardDetails({ card }: { card: StructureCard }) {
+  const { locale, t } = useLanguage();
+
   return (
     <div className="mt-6 space-y-6">
       <div>
         <p className="text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Pattern
+          {t.structure.pattern}
         </p>
         <p className="mt-1 font-mono text-xl text-fuchsia-300">
           {card.pattern_name}
@@ -138,13 +143,13 @@ function CardDetails({ card }: { card: StructureCard }) {
         <p className="mt-2 text-sm text-neutral-300">{card.summary}</p>
       </div>
 
-      <Field label="Hook type" value={card.hook_type} />
-      <Field label="Narrative flow" value={card.narrative_flow} />
-      <Field label="Visual style" value={card.visual_style} />
+      <Field label={t.structure.hookType} value={card.hook_type} />
+      <Field label={t.structure.narrativeFlow} value={card.narrative_flow} />
+      <Field label={t.structure.visualStyle} value={card.visual_style} />
 
       <div>
         <h3 className="mb-2 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Editing atoms ({card.editing_atoms.length})
+          {t.structure.editingAtoms(card.editing_atoms.length)}
         </h3>
         <ul className="space-y-1 text-sm">
           {card.editing_atoms.map((atom, i) => (
@@ -166,7 +171,7 @@ function CardDetails({ card }: { card: StructureCard }) {
 
       <div>
         <h3 className="mb-2 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Reusable rules ({card.reusable_rules.length})
+          {t.structure.reusableRules(card.reusable_rules.length)}
         </h3>
         <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-300 marker:text-fuchsia-400">
           {card.reusable_rules.map((rule, i) => (
@@ -177,10 +182,10 @@ function CardDetails({ card }: { card: StructureCard }) {
 
       <div>
         <h3 className="mb-2 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Source segments ({card.source_segments.length})
+          {t.structure.sourceSegments(card.source_segments.length)}
         </h3>
         {card.source_segments.length === 0 ? (
-          <p className="text-sm text-neutral-500">No segments referenced.</p>
+          <p className="text-sm text-neutral-500">{t.structure.noSegments}</p>
         ) : (
           <ul className="flex flex-wrap gap-2 text-xs font-mono">
             {card.source_segments.map((id) => (
@@ -196,16 +201,18 @@ function CardDetails({ card }: { card: StructureCard }) {
       </div>
 
       <div className="border-t border-neutral-800 pt-4 text-xs text-neutral-500">
-        <span className="text-neutral-400">card id:</span>{" "}
+        <span className="text-neutral-400">{t.structure.cardId}</span>{" "}
         <span className="font-mono text-neutral-300">{card.id}</span>
         <span className="mx-3">·</span>
-        <span className="text-neutral-400">source job:</span>{" "}
+        <span className="text-neutral-400">{t.structure.sourceJob}</span>{" "}
         <span className="font-mono text-neutral-300">
           {card.source_video_job_id}
         </span>
         <span className="mx-3">·</span>
-        <span className="text-neutral-400">created:</span>{" "}
-        <span className="text-neutral-300">{formatTime(card.created_at)}</span>
+        <span className="text-neutral-400">{t.structure.created}</span>{" "}
+        <span className="text-neutral-300">
+          {formatTime(card.created_at, localeToDateLocale(locale))}
+        </span>
       </div>
     </div>
   );

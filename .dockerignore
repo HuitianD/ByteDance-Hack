@@ -1,0 +1,17 @@
+.git
+**/node_modules
+**/.next
+**/.venv
+**/__pycache__
+**/.env
+**/.env.local
+**/.env.*.local
+data
+*.mp4
+**/*.tsbuildinfo
+apps/web/out
+apps/api/demo/*.mp4
+VIRALCRAFT_INTERVIEW_KNOWLEDGE_BASE.md
+
+!apps/web/public/examples/*.mp4
+!apps/web/public/references/*.mp4

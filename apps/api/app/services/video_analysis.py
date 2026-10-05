@@ -2,7 +2,7 @@
 
 Pipeline:
     1. Read metadata via OpenCV.
-    2. Extract representative frames every N seconds (capped).
+    2. Extract representative frames across the full clip (capped).
     3. Detect scenes via PySceneDetect, with a time-based fallback.
 
 This module is pure-ish: it reads a source video and writes JPEG frames +
@@ -13,6 +13,7 @@ analysis JSON to the knowledge base.
 from __future__ import annotations
 
 import logging
+import math
 import shutil
 import uuid
 from datetime import datetime, timezone
@@ -170,16 +171,10 @@ def _extract_frames(
     every_seconds: float,
     max_frames: int,
 ) -> List[FrameInfo]:
-    if duration_seconds <= 0:
+    if duration_seconds <= 0 or max_frames <= 0:
         return []
-
-    timestamps: List[float] = []
-    t = 0.0
-    while t < duration_seconds and len(timestamps) < max_frames:
-        timestamps.append(t)
-        t += every_seconds
-    if not timestamps:
-        timestamps = [0.0]
+    if every_seconds <= 0:
+        raise AnalysisError("Frame sampling interval must be positive")
 
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
@@ -187,8 +182,35 @@ def _extract_frames(
 
     frames: List[FrameInfo] = []
     try:
-        for idx, ts in enumerate(timestamps):
-            cap.set(cv2.CAP_PROP_POS_MSEC, ts * 1000.0)
+        fps = float(cap.get(cv2.CAP_PROP_FPS))
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if not math.isfinite(fps) or fps <= 0 or frame_count <= 0:
+            raise AnalysisError("Could not read frame metadata for sampling")
+        # Seek to frame positions, never the duration boundary (which is EOF).
+        # Timestamps describe these frame-aligned seeks rather than unrounded
+        # ideal intervals that may fall between actual frames.
+        last_frame = min(frame_count - 1, max(0, math.ceil(duration_seconds * fps) - 1))
+        regular_count = math.floor((last_frame / fps) / every_seconds) + 1
+        if regular_count >= max_frames:
+            count = min(max_frames, last_frame + 1)
+            positions = (
+                [last_frame]
+                if count == 1
+                else [round(i * last_frame / (count - 1)) for i in range(count)]
+            )
+        else:
+            positions = [
+                min(last_frame, round(i * every_seconds * fps))
+                for i in range(regular_count)
+            ]
+            if positions[-1] != last_frame:
+                positions.append(last_frame)
+        positions = list(dict.fromkeys(positions))
+        for idx, position in enumerate(positions):
+            ts = position / fps
+            if not cap.set(cv2.CAP_PROP_POS_FRAMES, position):
+                log.warning("Failed to seek frame %d from %s", position, video_path)
+                continue
             ok, frame = cap.read()
             if not ok or frame is None:
                 log.warning("Failed to read frame at t=%.2fs from %s", ts, video_path)

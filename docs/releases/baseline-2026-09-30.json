@@ -1,0 +1,56 @@
+{
+  "verified_on": "2026-09-30",
+  "scope": "Local integration, not public deployment or user adoption",
+  "examples": [
+    {
+      "path": "apps/web/public/examples/chinese.mp4",
+      "bytes": 2895682,
+      "sha256": "2234b7390a5d949703b8a410e7bf4a5c7dd39410e2e536f6cf2a240cc0970d1c"
+    },
+    {
+      "path": "apps/web/public/examples/english.mp4",
+      "bytes": 2140617,
+      "sha256": "86600f673380289691ac62af65fcdd3f6e5b464061a32061c71bb10c8cc4b73b"
+    },
+    {
+      "path": "apps/web/public/examples/live.mp4",
+      "bytes": 3566619,
+      "sha256": "81f19b1c1335e39768a5716e7727e3d5135507790319e3a7ea27acb9229435a2"
+    },
+    {
+      "path": "apps/web/public/examples/source.mp4",
+      "bytes": 71609,
+      "sha256": "ee359678cd77ad638c1736183145f904159159d6e8e13826f1e81145c510b6f9"
+    }
+  ],
+  "real_pipeline": {
+    "planner_model": "doubao-seed-2-1-lite-260915",
+    "scene_count": 3,
+    "video_seconds": 15,
+    "width": 720,
+    "height": 1280,
+    "fps": 30,
+    "embedding_model": "doubao-embedding-vision-251215",
+    "embedding_dimensions": 1024,
+    "reference_cards": 3,
+    "reference_card_origin": "human-authored templates",
+    "video_model": "doubao-seedance-2-5-260628",
+    "generated_clips": 1,
+    "generated_clip_seconds": 5.041666666666667,
+    "video_tokens": 108900,
+    "render_ms": 36843
+  },
+  "checks_completed": [
+    "16 Python tests including local pgvector SQL",
+    "Web, renderer and shared-schema type checks",
+    "Next static build",
+    "Final MP4 decoded at 2, 7, 12 and 14.9 seconds",
+    "Local HTTP homepage/video and byte-range responses"
+  ],
+  "limitations": [
+    "No public deployment or real customer adoption verified",
+    "Reference learning does not yet receive image content",
+    "Sample brand Craft is fictional",
+    "Current real sample uses one generated opening and self-made footage"
+  ]
+}

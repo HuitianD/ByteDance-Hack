@@ -10,6 +10,8 @@ import type { StructureCardId } from "./structureCard";
 export type StoryboardId = string;
 
 export interface StoryboardScene {
+  assetStrategy?: "source_remix" | "generated_video";
+  generatedAssetId?: string | null;
   sceneId: string;
   startTime: number;
   endTime: number;
@@ -35,6 +37,10 @@ export interface StoryboardScene {
 }
 
 export interface Storyboard {
+  version?: number;
+  targetMediaJobId?: string | null;
+  audioAssetId?: string | null;
+  generationMode?: "seed" | "mock" | "legacy";
   id: StoryboardId;
   title: string;
   userPrompt: string;

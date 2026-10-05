@@ -35,8 +35,10 @@ async function parseOrThrow<T>(res: Response): Promise<T> {
   let detail = res.statusText;
   try {
     const body = (await res.json()) as { detail?: unknown };
-    if (body && typeof body.detail === "string") {
-      detail = body.detail;
+    if (body && typeof body.detail === "string") detail = body.detail;
+    else if (body && body.detail && typeof body.detail === "object") {
+      const value = body.detail as {message?: string; errors?: {msg?: string}[]};
+      detail = value.message || (Array.isArray(body.detail) ? body.detail.map((x: {msg?: string}) => x.msg).join("; ") : value.errors?.map(x => x.msg).join("; ")) || detail;
     }
   } catch {
     // Non-JSON error body; fall back to statusText.

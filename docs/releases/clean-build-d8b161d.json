@@ -1,0 +1,32 @@
+{
+  "commit": "d8b161d",
+  "source": "git archive into empty /tmp/viralcraft-reference-d8b161d",
+  "host_dependencies_mounted": false,
+  "build": "passed",
+  "architecture": "Linux arm64 via Docker Desktop",
+  "http_checks": {
+    "home": "passed",
+    "api": "passed",
+    "library_cards": 6,
+    "public_visual_cards": 3,
+    "reference_assets_hash_verified": 30,
+    "historical_example_videos": 4
+  },
+  "image": "viralcraft:reference-d8b161d",
+  "smoke_network": "none",
+  "external_model_calls_during_clean_verification": 0,
+  "smoke_status": "passed",
+  "smoke_render_ms": 50227,
+  "smoke_video_bytes": 2094551,
+  "smoke_storyboard_version": 2,
+  "smoke_steps": [
+    "invitation",
+    "bundled reference selection",
+    "sample target upload",
+    "queued mock draft",
+    "caption editing",
+    "versioned save",
+    "real Remotion MP4",
+    "authenticated download"
+  ]
+}

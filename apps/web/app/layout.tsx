@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { LanguageProvider } from "@/lib/i18n";
+
 export const metadata: Metadata = {
   title: "ViralCraft",
   description:
@@ -14,7 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

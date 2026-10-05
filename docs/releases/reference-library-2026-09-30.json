@@ -1,0 +1,111 @@
+{
+  "date": "2026-09-30",
+  "scope": "Recoverable release baseline and evidence-backed reference library",
+  "baseline_commit": "54b41fd",
+  "baseline_tag": "baseline/portable-mvp-2026-09-30",
+  "vision_provider": "seed",
+  "vision_model": "doubao-seed-2-1-lite-260915",
+  "real_vision_requests": 3,
+  "new_seedance_requests": 0,
+  "provider_usage": [
+    {
+      "model": "doubao-seed-2-1-lite-260915",
+      "provider": "seed",
+      "usage": {
+        "completion_tokens": 1730,
+        "prompt_tokens": 11963,
+        "total_tokens": 13693,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "doubao-seed-2-1-lite-260915",
+      "provider": "seed",
+      "usage": {
+        "completion_tokens": 1259,
+        "prompt_tokens": 13323,
+        "total_tokens": 14582,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    {
+      "model": "doubao-seed-2-1-lite-260915",
+      "provider": "seed",
+      "usage": {
+        "completion_tokens": 1277,
+        "prompt_tokens": 13323,
+        "total_tokens": 14600,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  ],
+  "total_reported_tokens": 42875,
+  "billing_amount": "Not verified against provider billing; token usage is not a cost invoice.",
+  "references": [
+    {
+      "slug": "list",
+      "public_id": "bf96ee4f-8da4-5da6-912d-649e79e774c2",
+      "version": 2,
+      "source_kind": "self_authored_demo",
+      "sha256": "8c99cef3abb78ec960556dfd15e83c16d4a53ca49ba9cfe6ea0c1313b7254802",
+      "frame_count": 9,
+      "observation_count": 4,
+      "rule_count": 4,
+      "review_method": "assistant_visual",
+      "human_reviewed": false
+    },
+    {
+      "slug": "question",
+      "public_id": "5028146c-1b78-5b67-a936-4f81f74e6154",
+      "version": 2,
+      "source_kind": "self_authored_demo",
+      "sha256": "720c9703f89c0a2f30cd33d28530ed44534af6b16e0c992587a19575e274cbf7",
+      "frame_count": 9,
+      "observation_count": 5,
+      "rule_count": 5,
+      "review_method": "assistant_visual",
+      "human_reviewed": false
+    },
+    {
+      "slug": "showcase",
+      "public_id": "fc9b4755-fa0e-571a-a8da-057611ca6498",
+      "version": 3,
+      "source_kind": "self_authored_demo",
+      "sha256": "3579339a4d2811491d1cbdf3da408079bffe385096e4f501395adec987403174",
+      "frame_count": 8,
+      "observation_count": 4,
+      "rule_count": 4,
+      "review_method": "assistant_visual",
+      "human_reviewed": false
+    }
+  ],
+  "offline_checks": {
+    "unittest": "44 tests: 43 passed, 1 pgvector integration test skipped (isolated TEST_DATABASE_URL not set).",
+    "typescript": "Web, renderer, shared schemas passed",
+    "next_static_export": "Passed with bundled reference assets",
+    "browser": "Home lists 3 visual references and 3 preset templates; Chinese details show source, frame evidence, rules, AI review; timestamp seek plays correct source without selecting card.",
+    "resume": "Re-ran importer without --allow-paid; recovered all 3 successful tasks; no new model calls."
+  },
+  "known_limits": [
+    "Three self-authored demonstrations reuse one generated cup clip; no real campaign effectiveness claim.",
+    "External licensed candidates could not be downloaded (HTTP 429); none were analyzed.",
+    "Assistant visual review is complete. Human review has not occurred.",
+    "Sampled stills cannot establish audio, exact subtitle timing, all cuts, or continuous motion.",
+    "This is local verification; no new cloud launch or user-adoption claim."
+  ]
+}

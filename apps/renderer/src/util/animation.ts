@@ -113,3 +113,31 @@ export function typeOnText(
   const visible = Math.min(text.length, Math.floor(elapsed * charsPerSecond));
   return text.slice(0, visible);
 }
+
+/**
+ * Word-by-word reveal for a luxury title. Returns each word with its
+ * own opacity + translateY, staggered by `perWordSeconds`. Each word
+ * fades + lifts over `revealFrames` once its own start time hits.
+ */
+export function wordStagger(
+  text: string,
+  frame: number,
+  fps: number,
+  perWordSeconds = 0.18,
+  revealFrames = 14
+): { word: string; opacity: number; translateY: number }[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  return words.map((word, i) => {
+    const startFrame = Math.round(i * perWordSeconds * fps);
+    const local = frame - startFrame;
+    if (local <= 0) {
+      return { word, opacity: 0, translateY: 24 };
+    }
+    const t = Math.min(1, local / revealFrames);
+    return {
+      word,
+      opacity: t,
+      translateY: 24 * (1 - t),
+    };
+  });
+}

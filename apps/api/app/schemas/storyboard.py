@@ -10,7 +10,7 @@ TS canonical mirror: `packages/schemas/src/storyboard.ts`.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -35,9 +35,7 @@ class StoryboardScene(BaseModel):
         description="Layout token consumed by the renderer "
         "(e.g. 'centered-text', 'fullscreen-asset', 'split', 'lower-third-caption')."
     )
-    text: Optional[str] = Field(
-        default=None, description="Optional on-screen text."
-    )
+    text: Optional[str] = Field(default=None, description="Optional on-screen text.")
     visual_description: str = Field(
         description="Plain-language description of what the scene should show. "
         "Used by humans + by future asset generation."
@@ -63,6 +61,8 @@ class StoryboardScene(BaseModel):
         default_factory=list,
         description="Editing-atom kinds (e.g. 'hook', 'reveal') referenced by this scene.",
     )
+    asset_strategy: Literal["source_remix", "generated_video"] = "source_remix"
+    generated_asset_id: Optional[str] = None
 
 
 class Storyboard(BaseModel):
@@ -91,6 +91,10 @@ class Storyboard(BaseModel):
     )
 
     created_at: datetime = Field(description="UTC timestamp.")
+    version: int = Field(default=1, ge=1)
+    target_media_job_id: Optional[str] = None
+    audio_asset_id: Optional[str] = None
+    generation_mode: Literal["seed", "mock", "legacy"] = "legacy"
 
 
 class StoryboardGenerateRequest(BaseModel):
@@ -105,3 +109,13 @@ class StoryboardGenerateRequest(BaseModel):
         description="If set, use these jobs' structure cards. Otherwise the most "
         "recent 1-3 cards on disk are used.",
     )
+    reference_card_ids: Optional[List[str]] = None
+    target_media_job_id: Optional[str] = None
+
+
+class StoryboardEdit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    version: int = Field(ge=1)
+    title: str = Field(min_length=1, max_length=160)
+    scenes: List[StoryboardScene] = Field(min_length=1, max_length=8)
+    audio_asset_id: Optional[str] = None

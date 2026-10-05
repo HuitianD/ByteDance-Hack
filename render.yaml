@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: viralcraft-trial
+    runtime: docker
+    plan: 1c-2g
+    healthCheckPath: /api/health
+    numInstances: 1
+    disk:
+      name: viralcraft-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: LEGACY_LOCAL_API
+        value: "false"
+      - key: LLM_PROVIDER
+        value: seed
+      - key: SEED_API_KEY
+        sync: false
+      - key: SEED_MODEL
+        sync: false
+      - key: SEED_ENDPOINT_ID
+        sync: false
+      - key: GLOBAL_GENERATION_LIMIT
+        value: "10"
+      - key: SEEDANCE_ENABLED
+        value: "false"
